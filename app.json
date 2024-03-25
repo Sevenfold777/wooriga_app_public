@@ -1,4 +1,7 @@
 {
   "name": "wooriga_app_v2",
-  "displayName": "wooriga_app_v2"
+  "displayName": "wooriga_app_v2",
+  "expo": {
+    "name": "wooriga_app_v2"
+  }
 }

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import React, { useEffect, useRef, useState } from "react";
+import {useMutation, useQuery} from '@tanstack/react-query';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   AppState,
   ScrollView,
@@ -9,8 +9,8 @@ import {
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
-} from "react-native";
-import styled from "styled-components/native";
+} from 'react-native';
+import styled from 'styled-components/native';
 import {
   createDailyEmotionApi,
   deleteDailyEmotionApi,
@@ -18,17 +18,17 @@ import {
   findFamEmotionsTodayApi,
   findMyEmotionTodayApi,
   pokeFamilyMemberApi,
-} from "../api/DailyEmotionApi";
-import Modal from "react-native-modal";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import familyStore from "../stores/FamilyStore";
-import { observer } from "mobx-react-lite";
-import { Colors, EMOTION_KOREAN } from "../Config";
-import assetStore from "../stores/AssetStore";
-import PropTypes from "prop-types";
-import { ROUTE_NAME } from "../Strings";
-import emotionStore from "../stores/EmotionStore";
+} from '../api/DailyEmotionApi';
+import Modal from 'react-native-modal';
+import {Ionicons} from '@expo/vector-icons';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import familyStore from '../stores/FamilyStore';
+import {observer} from 'mobx-react-lite';
+import {Colors, EMOTION_KOREAN} from '../Config';
+import assetStore from '../stores/AssetStore';
+import PropTypes from 'prop-types';
+import {ROUTE_NAME} from '../Strings';
+import emotionStore from '../stores/EmotionStore';
 
 export const Container = styled.View`
   /* height: 200px; */
@@ -40,12 +40,10 @@ export const Container = styled.View`
   //background-color: beige;
 `;
 
-export const HeaderWrapper = styled.TouchableWithoutFeedback``;
-
 export const Header = styled.Text`
   padding: 5px 10px 10px 10px;
   font-size: 16px;
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
 `;
 
 export const EmotionWrapper = styled.View`
@@ -56,16 +54,16 @@ export const EmotionWrapper = styled.View`
 
 export const EmotionOwner = styled.Text`
   padding: 5px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   text-align: center;
 `;
 
 export const Emotion = styled.Image`
   background-color: ${Colors.borderDark};
   border: 2px solid ${Colors.main};
-  border-radius: ${(props) => `${(props.pageWidth - 100) / 8}px`};
-  width: ${(props) => `${(props.pageWidth - 100) / 4}px`};
-  height: ${(props) => `${(props.pageWidth - 100) / 4}px`};
+  border-radius: ${props => `${(props.pageWidth - 100) / 8}px`};
+  width: ${props => `${(props.pageWidth - 100) / 4}px`};
+  height: ${props => `${(props.pageWidth - 100) / 4}px`};
 
   /* border: 1px solid black; */
 `;
@@ -100,7 +98,7 @@ export const EmotionModalTextContainer = styled.View`
 
 export const EmotionModalText = styled.Text`
   text-align: center;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   line-height: 18px;
 `;
 
@@ -111,25 +109,25 @@ const EmotionConfirmBtn = styled.TouchableOpacity`
 
 const EmotionConfirmText = styled.Text`
   text-align: center;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 export const EmotionName = styled.Text`
   padding: 5px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 const FamilyModalBtn = styled.TouchableOpacity`
-  border-radius: ${(props) => `${(props.pageWidth - 140) / 8}px`};
-  width: ${(props) => `${(props.pageWidth - 140) / 4}px`};
-  height: ${(props) => `${(props.pageWidth - 140) / 4}px`};
+  border-radius: ${props => `${(props.pageWidth - 140) / 8}px`};
+  width: ${props => `${(props.pageWidth - 140) / 4}px`};
+  height: ${props => `${(props.pageWidth - 140) / 4}px`};
   justify-content: center;
   align-items: center;
   margin: 0px 15px 5px 15px;
   background-color: ${Colors.sub};
 `;
 
-function DailyEmotion({ isMyPage = false, isTitle = true }) {
+function DailyEmotion({isMyPage = false, isTitle = true}) {
   /** navigation */
   const navigation = useNavigation();
   const route = useRoute();
@@ -139,30 +137,30 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
   }, [route.params]);
 
   // console.log(route.params);
-  const { width: pageWidth, height: pageHeight } = useWindowDimensions();
+  const {width: pageWidth, height: pageHeight} = useWindowDimensions();
 
   /** 1. my Daily Emotion */
-  const { data: me, refetch: refetchMe } = useQuery(
-    ["MeWithEmotion"],
+  const {data: me, refetch: refetchMe} = useQuery(
+    ['MeWithEmotion'],
     findMyEmotionTodayApi,
     {
-      onSuccess: (data) => {
+      onSuccess: data => {
         setMyEmotion(data?.data[0].type);
         emotionStore.setEmotionChosen(Boolean(data?.data[0].type));
       },
-    }
+    },
   );
 
   /** 2. Family Daily Emotion */
-  const { data: family, refetch: refetchFamily } = useQuery(
-    ["FamilyWithEmotions"],
+  const {data: family, refetch: refetchFamily} = useQuery(
+    ['FamilyWithEmotions'],
     findFamEmotionsTodayApi,
     {
       enabled: Boolean(me?.data[0].familyId),
-      onSuccess: ({ data: result }) => {
+      onSuccess: ({data: result}) => {
         familyStore.setInviteNeeded(result.length === 0);
       },
-    }
+    },
   );
 
   /** 방법2. refetcth when AppState Changes */
@@ -174,17 +172,17 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
     };
 
     const subscription = AppState.addEventListener(
-      "change",
-      async (nextAppState) => {
+      'change',
+      async nextAppState => {
         if (
           appState.current.match(/inactive|background/) &&
-          nextAppState === "active"
+          nextAppState === 'active'
         ) {
           await refetch();
         }
 
         appState.current = nextAppState;
-      }
+      },
     );
 
     return () => subscription.remove();
@@ -217,7 +215,7 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
     onSuccess: () => {},
   });
 
-  const renderEmotion = ({ id, owner, type, isMe, pediaId }) => {
+  const renderEmotion = ({id, owner, type, isMe, pediaId}) => {
     return (
       <EmotionWrapper key={id}>
         <TouchableOpacity
@@ -226,18 +224,17 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
               // setMyEmotion(type);
               setMyModal(true);
             } else {
-              setFamilyPressed({ id, userName: owner, type, pediaId });
+              setFamilyPressed({id, userName: owner, type, pediaId});
               setFamilyModal(true);
             }
-          }}
-        >
+          }}>
           <Emotion
             type={assetStore.emotionsRound[type]}
-            source={{ uri: assetStore.emotionsRound[type] }}
+            source={{uri: assetStore.emotionsRound[type]}}
             pageWidth={pageWidth}
           />
         </TouchableOpacity>
-        <EmotionOwner style={{ maxWidth: (pageWidth - 100) / 4 }}>
+        <EmotionOwner style={{maxWidth: (pageWidth - 100) / 4}}>
           {isMe ? owner : familyStore.members[id] || owner}
         </EmotionOwner>
       </EmotionWrapper>
@@ -275,15 +272,14 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
       backdropTransitionInTiming={0}
       backdropTransitionOutTiming={0}
       statusBarTranslucent
-      deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-    >
+      deviceHeight={pageHeight + StatusBar.currentHeight + 10}>
       <ModalContainer>
         <EmotionModalWrapper>
           <EmotionWrapper>
             <Emotion
               type={assetStore.emotionsRound[myEmotion]}
-              source={{ uri: assetStore.emotionsRound[myEmotion] }}
-              style={{ borderRadius: 50, width: 100, height: 100 }}
+              source={{uri: assetStore.emotionsRound[myEmotion]}}
+              style={{borderRadius: 50, width: 100, height: 100}}
               pagewidth={pageWidth}
             />
             <EmotionOwner>{me?.data[0].userName}</EmotionOwner>
@@ -294,16 +290,15 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
           </EmotionModalTextContainer>
 
           <EmotionSelection>
-            {emotionKeys.slice(0, emotionKeys.length / 2).map((emotion) => (
+            {emotionKeys.slice(0, emotionKeys.length / 2).map(emotion => (
               <EmotionWrapper key={emotion} pagewidth={pageWidth}>
                 <TouchableOpacity
                   onPress={() => {
                     setMyEmotion(emotion);
-                  }}
-                >
+                  }}>
                   <Emotion
                     type={assetStore.emotionsRound[emotion]}
-                    source={{ uri: assetStore.emotionsRound[emotion] }}
+                    source={{uri: assetStore.emotionsRound[emotion]}}
                     pageWidth={pageWidth}
                   />
                 </TouchableOpacity>
@@ -312,16 +307,15 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
             ))}
           </EmotionSelection>
           <EmotionSelection>
-            {emotionKeys.slice(emotionKeys.length / 2).map((emotion) => (
+            {emotionKeys.slice(emotionKeys.length / 2).map(emotion => (
               <EmotionWrapper key={emotion}>
                 <TouchableOpacity
                   onPress={() => {
                     setMyEmotion(emotion);
-                  }}
-                >
+                  }}>
                   <Emotion
                     type={assetStore.emotionsRound[emotion]}
-                    source={{ uri: assetStore.emotionsRound[emotion] }}
+                    source={{uri: assetStore.emotionsRound[emotion]}}
                     pageWidth={pageWidth}
                   />
                 </TouchableOpacity>
@@ -333,18 +327,16 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
 
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
+            flexDirection: 'row',
+            justifyContent: 'center',
             borderTopWidth: 0.3,
             borderTopColor: Colors.borderDark,
-          }}
-        >
+          }}>
           <EmotionConfirmBtn
             onPress={() => {
               setMyEmotion(me?.data[0]?.type);
               setMyModal(false);
-            }}
-          >
+            }}>
             <EmotionConfirmText>취소</EmotionConfirmText>
           </EmotionConfirmBtn>
           <EmotionConfirmBtn
@@ -353,10 +345,10 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
               borderLeftColor: Colors.borderDark,
             }}
             onPress={() => {
-              if (myEmotion === "null" && me?.data[0].type !== null) {
+              if (myEmotion === 'null' && me?.data[0].type !== null) {
                 deleteDailyEmotion.mutate(me?.data[0]?.emotionId);
               } else if (me?.data[0].type === null) {
-                createDailyEmotion.mutate({ type: myEmotion });
+                createDailyEmotion.mutate({type: myEmotion});
               } else {
                 editDailyEmotion.mutate({
                   id: me?.data[0]?.emotionId,
@@ -364,8 +356,7 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
                 });
               }
               setMyModal(false);
-            }}
-          >
+            }}>
             <EmotionConfirmText>완료</EmotionConfirmText>
           </EmotionConfirmBtn>
         </View>
@@ -402,8 +393,7 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
       animationOut="fadeOutDown"
       backdropTransitionOutTiming={0}
       statusBarTranslucent
-      deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-    >
+      deviceHeight={pageHeight + StatusBar.currentHeight + 10}>
       <ModalContainer>
         {/* <TouchableOpacity
           style={{ position: "absolute", top: 0, right: 0, padding: 10 }}
@@ -419,16 +409,15 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
               source={{
                 uri: assetStore.emotionsRound[familyPressed?.type],
               }}
-              style={{ borderRadius: 50, width: 100, height: 100 }}
+              style={{borderRadius: 50, width: 100, height: 100}}
               pageWidth={pageWidth}
             />
 
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
               <EmotionOwner>
                 {familyStore.members[familyPressed?.id] ||
                   familyPressed?.userName}
@@ -436,9 +425,7 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
             </View>
           </EmotionWrapper>
 
-          <View
-            style={{ marginTop: 10, marginBottom: 5, paddingHorizontal: 15 }}
-          >
+          <View style={{marginTop: 10, marginBottom: 5, paddingHorizontal: 15}}>
             <EmotionModalText>
               {isPoked
                 ? `${
@@ -449,19 +436,18 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
                 ? `오늘 나의 감정은 ${
                     EMOTION_KOREAN[familyPressed?.type]
                   }입니다!`
-                : "찌르기를 눌러서 오늘의 감정을 물어보세요"}
+                : '찌르기를 눌러서 오늘의 감정을 물어보세요'}
             </EmotionModalText>
           </View>
 
           <View
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               marginTop: 15,
               paddingHorizontal: 15,
-              justifyContent: "center",
-            }}
-          >
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
+              justifyContent: 'center',
+            }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <FamilyModalBtn
                 pageWidth={pageWidth}
                 onPress={() => {
@@ -471,22 +457,20 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
                     name: familyPressed?.userName,
                     nickname: familyStore.members[familyPressed?.id],
                   });
-                }}
-              >
+                }}>
                 <Ionicons name="pencil" size={24} />
               </FamilyModalBtn>
               <Text
                 style={{
-                  fontFamily: "nanum-regular",
+                  fontFamily: 'nanum-regular',
                   paddingVertical: 5,
                   fontSize: 13,
-                }}
-              >
+                }}>
                 이름수정
               </Text>
             </View>
 
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <FamilyModalBtn
                 pageWidth={pageWidth}
                 onPress={() => {
@@ -494,40 +478,36 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
                   navigation.navigate(ROUTE_NAME.FAMILYPEDIA_MEMBER, {
                     pediaId: familyPressed?.pediaId,
                   });
-                }}
-              >
+                }}>
                 <Ionicons name="person" size={24} />
               </FamilyModalBtn>
               <Text
                 style={{
-                  fontFamily: "nanum-regular",
+                  fontFamily: 'nanum-regular',
                   paddingVertical: 5,
                   fontSize: 13,
-                }}
-              >
+                }}>
                 인물사전
               </Text>
             </View>
 
-            <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <FamilyModalBtn
                 pageWidth={pageWidth}
                 onPress={() => {
                   if (!isPoked) {
-                    pokeDailyEmotion.mutate({ targetId: familyPressed?.id });
+                    pokeDailyEmotion.mutate({targetId: familyPressed?.id});
                     setIsPoked(true);
                   }
-                }}
-              >
+                }}>
                 <Ionicons name="notifications" size={24} />
               </FamilyModalBtn>
               <Text
                 style={{
-                  fontFamily: "nanum-regular",
+                  fontFamily: 'nanum-regular',
                   paddingVertical: 5,
                   fontSize: 13,
-                }}
-              >
+                }}>
                 찌르기
               </Text>
             </View>
@@ -535,17 +515,15 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
         </EmotionModalWrapper>
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
+            flexDirection: 'row',
+            justifyContent: 'center',
             borderTopWidth: 0.3,
             borderTopColor: Colors.borderDark,
-          }}
-        >
+          }}>
           <EmotionConfirmBtn
             onPress={() => {
               setFamilyModal(false);
-            }}
-          >
+            }}>
             <EmotionConfirmText>닫기</EmotionConfirmText>
           </EmotionConfirmBtn>
         </View>
@@ -556,20 +534,18 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
   if (isMyPage) {
     return (
       <Container
-        style={{ borderBottomWidth: 0, alignItems: "center", marginTop: 30 }}
-      >
+        style={{borderBottomWidth: 0, alignItems: 'center', marginTop: 30}}>
         <EmotionWrapper>
           <TouchableOpacity
             onPress={() => {
               setMyEmotion(me?.data[0].type);
               setMyModal(true);
-            }}
-          >
+            }}>
             <Emotion
-              style={{ height: 120, width: 120, borderRadius: 60 }}
+              style={{height: 120, width: 120, borderRadius: 60}}
               pageWidth={pageWidth}
               type={assetStore.emotionsRound[me?.data[0].type]}
-              source={{ uri: assetStore.emotionsRound[me?.data[0].type] }}
+              source={{uri: assetStore.emotionsRound[me?.data[0].type]}}
             />
           </TouchableOpacity>
         </EmotionWrapper>
@@ -580,18 +556,13 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
 
   return (
     <Container>
-      {isTitle && (
-        <HeaderWrapper>
-          <Header>오늘의 우리가</Header>
-        </HeaderWrapper>
-      )}
+      {isTitle && <Header>오늘의 우리가</Header>}
 
       <ScrollView
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        contentContainerStyle={{ alignItems: "flex-start" }}
-      >
+        contentContainerStyle={{alignItems: 'flex-start'}}>
         {renderEmotion({
           id: me?.data[0].userId,
           owner: me?.data[0].userName, // familyStore.members[me?.data[0].userId], //
@@ -599,7 +570,7 @@ function DailyEmotion({ isMyPage = false, isTitle = true }) {
           isMe: true,
         })}
         {Boolean(me?.data[0].familyId) &&
-          family?.data.map((member) => {
+          family?.data.map(member => {
             return renderEmotion({
               id: member.userId,
               owner: member.userName,

@@ -17,7 +17,6 @@ TextInput.defaultProps.maxFontSizeMultiplier = 1.25;
 // TextInput.defaultProps.allowFontScaling = false;
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-  //  여기에 로직을 작성한다.
   //  remoteMessage.data로 메세지에 접근가능
   //  remoteMessage.from 으로 topic name 또는 message identifier
   //  remoteMessage.messageId 는 메시지 고유값 id

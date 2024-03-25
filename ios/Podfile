@@ -27,7 +27,7 @@ if linkage != nil
 end
 
 target 'wooriga_app_v2' do
-  RNFirebaseAnalyticsWithoutAdIdSupport = true
+  RNFirebaseAnalyticsWithoutAdIdSupport=true
   use_expo_modules!
   post_integrate do |installer|
     begin
