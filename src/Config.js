@@ -98,59 +98,59 @@ export const linking = {
   // config: authStore.isLoggedIn ? loggedInNavRoutes : loggedOutNavRoutes,
 };
 
-export const Emotions =
-  ENV === 'PROD'
-    ? [
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/happy.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/passion.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/comfort.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/tired.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sharp.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sad.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/no_message.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
-      ]
-    : [
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/happy.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/passion.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/comfort.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/tired.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sharp.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sad.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/no_message.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
-      ];
+// export const Emotions =
+//   ENV === 'PROD'
+//     ? [
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/happy.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/passion.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/comfort.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/tired.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sharp.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sad.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/no_message.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
+//       ]
+//     : [
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/happy.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/passion.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/comfort.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/tired.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sharp.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sad.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/no_message.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
+//       ];
 
-export const RoundEmotions =
-  ENV === 'PROD'
-    ? [
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/happy_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/passion_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/comfort_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/tired_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sharp_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sad_round.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/null.png',
-      ]
-    : [
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/happy_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/passion_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/comfort_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/tired_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sharp_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sad_round.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/null.png',
-      ];
+// export const RoundEmotions =
+//   ENV === 'PROD'
+//     ? [
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/happy_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/passion_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/comfort_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/tired_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sharp_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/sad_round.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/emotions/null.png',
+//       ]
+//     : [
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/happy_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/passion_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/comfort_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/tired_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sharp_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/sad_round.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/null.png',
+//       ];
 
-export const ActivityThumbnails =
-  ENV === 'PROD'
-    ? [
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/familyPedia.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/letter.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
-      ]
-    : [
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/activity/familyPedia.png',
-        'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/letter.png',
-        'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
-      ];
+// export const ActivityThumbnails =
+//   ENV === 'PROD'
+//     ? [
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/familyPedia.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/letter.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
+//       ]
+//     : [
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/activity/familyPedia.png',
+//         'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/letter.png',
+//         'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/activity/balanceGame.png',
+//       ];
