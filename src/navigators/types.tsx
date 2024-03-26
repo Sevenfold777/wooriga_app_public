@@ -10,8 +10,7 @@ import {StackScreenProps} from '@react-navigation/stack';
 export type SignedInParams = {
   MainTabNav: NavigatorScreenParams<MainTabParams>;
 
-  MessageFamily: {id: number};
-  MessageSend: undefined;
+  MessageFamily: {messageId: number};
   MessagePast: undefined;
 
   PhotoSelect: undefined;
@@ -63,11 +62,11 @@ export type SignedInParams = {
 };
 
 export type SignedInScreenProps<T extends keyof SignedInParams> =
-  BottomTabScreenProps<SignedInParams, T>;
+  StackScreenProps<SignedInParams, T>;
 
 /* 2. Main Tab Nav (Bottom Tab) */
 export type MainTabParams = {
-  MessageHome: undefined;
+  MessageHome: {openEmotionSelection: boolean} | undefined;
   PhotoHome: undefined;
   LetterHome: undefined;
   FamilyPediaHome: undefined;
@@ -127,6 +126,7 @@ export type RootParams = {
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootParams {}
+    // interface RootParamList extends RootParams {}
+    interface RootParamList extends SignedInParams {}
   }
 }

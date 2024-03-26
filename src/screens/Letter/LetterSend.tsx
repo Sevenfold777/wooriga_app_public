@@ -64,7 +64,7 @@ import {useMutation, useQuery} from '@tanstack/react-query';
 import {findMyFamilyApi, inviteFamilyApi} from '../../api/FamilyApi';
 import familyStore from '../../stores/FamilyStore';
 import {StartBtn, StartBtnText} from '../../components/letter/Letter';
-import {RowContainer} from '../../components/Common';
+
 import {
   deleteLetterApi,
   editLetterApi,
@@ -75,6 +75,7 @@ import GuideModal from '../../components/Modals/GuideModal';
 import InviteModal from '../../components/Invite';
 import {INVITATION_URL} from '../../api/ApiConfig';
 import {SignedInScreenProps} from '../../navigators/types';
+import {RowContainer} from '../../components/common/Common';
 
 const LetterContainer = styled.View`
   padding: 20px;

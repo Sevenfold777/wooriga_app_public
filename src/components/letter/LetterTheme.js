@@ -1,15 +1,15 @@
-import styled from "styled-components/native";
-import { Colors } from "../../Config";
-import { Ionicons } from "@expo/vector-icons";
-import { RowContainer } from "../Common";
-import { View, Image, AppState } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { ROUTE_NAME } from "../../Strings";
-import assetStore from "../../stores/AssetStore";
-import PropTypes from "prop-types";
-import Timer from "../Timer";
-import { useEffect, useRef, useState } from "react";
-import { getTimeCapsuleTime } from "./LetterBox";
+import styled from 'styled-components/native';
+import {Colors} from '../../Config';
+import {Ionicons} from '@expo/vector-icons';
+import {RowContainer} from '../common/Common';
+import {View, Image, AppState} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {ROUTE_NAME} from '../../Strings';
+import assetStore from '../../stores/AssetStore';
+import PropTypes from 'prop-types';
+import Timer from '../Timer';
+import {useEffect, useRef, useState} from 'react';
+import {getTimeCapsuleTime} from './LetterBox';
 
 export const ThemeContainer = styled.TouchableOpacity`
   background-color: white;
@@ -34,13 +34,13 @@ export const ThemeDetail = styled.View`
 
 export const ThemeTextBold = styled.Text`
   padding: 2px 0px;
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
 `;
 
 export const ThemeText = styled.Text`
   font-size: 13px;
   padding: 2px 0px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 export const ProgressBar = styled.View`
@@ -55,7 +55,7 @@ export const ProgressBar = styled.View`
 export const Progress = styled.View`
   border-radius: 7px;
   padding: 5px 0px;
-  flex: ${(props) => props.percentage};
+  flex: ${props => props.percentage};
   justify-content: center;
   align-items: center;
 `;
@@ -70,7 +70,7 @@ export const ChgHashTagText = styled(ThemeText)`
   color: ${Colors.main};
 `;
 
-export function LetterTheme({ id, title, hashtags, isSelect }) {
+export function LetterTheme({id, title, hashtags, isSelect}) {
   const navigation = useNavigation();
 
   return (
@@ -81,11 +81,10 @@ export function LetterTheme({ id, title, hashtags, isSelect }) {
           headerTitle: title,
           isSelect,
         })
-      }
-    >
+      }>
       <RowContainer>
-        <View style={{ flex: 1 }}>
-          <ThemeTextBold numberOfLines={1} style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
+          <ThemeTextBold numberOfLines={1} style={{flex: 1}}>
             {title}
           </ThemeTextBold>
 
@@ -117,7 +116,7 @@ export function TimeCapsule({
   const [progress, setProgress] = useState(
     receiveDate <= now
       ? 100
-      : parseInt(((now - createdAt) / (receiveDate - createdAt)) * 100)
+      : parseInt(((now - createdAt) / (receiveDate - createdAt)) * 100),
   );
   const [isCompleted, setCompleted] = useState(receiveDate <= now);
   const [timer, setTimer] = useState(getTimeCapsuleTime(receiveDate));
@@ -127,7 +126,9 @@ export function TimeCapsule({
       // 초 countdown
       if (progress < 100) {
         setProgress(
-          parseInt(((new Date() - createdAt) / (receiveDate - createdAt)) * 100)
+          parseInt(
+            ((new Date() - createdAt) / (receiveDate - createdAt)) * 100,
+          ),
         );
 
         const timeString = getTimeCapsuleTime(receiveDate);
@@ -149,14 +150,16 @@ export function TimeCapsule({
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
       if (
         appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
+        nextAppState === 'active'
       ) {
         // console.log("became foreground");
         setProgress(
-          parseInt(((new Date() - createdAt) / (receiveDate - createdAt)) * 100)
+          parseInt(
+            ((new Date() - createdAt) / (receiveDate - createdAt)) * 100,
+          ),
         );
       }
 
@@ -182,52 +185,52 @@ export function TimeCapsule({
           });
         }
       }}
-      disabled={!isSent && !isCompleted}
-    >
+      disabled={!isSent && !isCompleted}>
       <RowContainer>
-        <Ionicons name="alarm-outline" size={14} style={{ marginRight: 5 }} />
+        <Ionicons name="alarm-outline" size={14} style={{marginRight: 5}} />
         <ThemeTextBold numberOfLines={1}>{title}</ThemeTextBold>
       </RowContainer>
       <ThemeDetail>
-        <ThemeText>{`작성일: ${createdAt.toLocaleDateString("ko-KR", {
+        <ThemeText>{`작성일: ${createdAt.toLocaleDateString('ko-KR', {
           ...(createdAt.getFullYear() !== now.getFullYear() && {
-            year: "numeric",
+            year: 'numeric',
           }),
-          month: "long",
-          day: "numeric",
+          month: 'long',
+          day: 'numeric',
         })}`}</ThemeText>
 
         <RowContainer>
           {isCompleted ? (
-            <ThemeText style={{ fontFamily: "nanum-bold" }}>
-              {`공개완료: ${receiveDate.toLocaleDateString("ko-KR", {
+            <ThemeText style={{fontFamily: 'nanum-bold'}}>
+              {`공개완료: ${receiveDate.toLocaleDateString('ko-KR', {
                 ...(receiveDate.getFullYear() !== now.getFullYear() && {
-                  year: "numeric",
+                  year: 'numeric',
                 }),
-                month: "long",
-                day: "numeric",
+                month: 'long',
+                day: 'numeric',
               })}`}
             </ThemeText>
           ) : (
             <ThemeText
-              style={{ fontFamily: "nanum-bold" }}
-            >{`${timer} 후 공개`}</ThemeText>
+              style={{
+                fontFamily: 'nanum-bold',
+              }}>{`${timer} 후 공개`}</ThemeText>
           )}
         </RowContainer>
 
         <ProgressBar>
           <Progress
             percentage={progress}
-            style={{ backgroundColor: isCompleted ? Colors.main : Colors.sub }}
+            style={{backgroundColor: isCompleted ? Colors.main : Colors.sub}}
           />
           <Progress percentage={100 - progress} />
 
           <Image
-            source={{ uri: assetStore.messageEmotions["passion"] }}
+            source={{uri: assetStore.messageEmotions['passion']}}
             style={{
               width: 30,
               height: 30,
-              position: "absolute",
+              position: 'absolute',
               left: `${progress - 3}%`,
             }}
             resizeMode="contain"
@@ -236,20 +239,19 @@ export function TimeCapsule({
         {isCompleted ? (
           <RowContainer>
             <ThemeText
-              style={{ flex: 1, color: "#3d6acb", fontFamily: "nanum-bold" }}
-            >
+              style={{flex: 1, color: '#3d6acb', fontFamily: 'nanum-bold'}}>
               {`${
                 3 - parseInt((now - receiveDate) / (1000 * 60 * 60 * 24))
-              }일 뒤 ${isSent ? "보낸" : "받은"} 편지함으로 이동됩니다`}
+              }일 뒤 ${isSent ? '보낸' : '받은'} 편지함으로 이동됩니다`}
             </ThemeText>
-            <ThemeText>{`${isSent ? "to" : "from"}. ${
-              target || "알 수 없음"
+            <ThemeText>{`${isSent ? 'to' : 'from'}. ${
+              target || '알 수 없음'
             }`}</ThemeText>
           </RowContainer>
         ) : (
           <ReceiverContainer>
-            <ThemeText>{`${isSent ? "to" : "from"}. ${
-              target || "알 수 없음"
+            <ThemeText>{`${isSent ? 'to' : 'from'}. ${
+              target || '알 수 없음'
             }`}</ThemeText>
           </ReceiverContainer>
         )}
@@ -266,7 +268,7 @@ LetterTheme.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       createdAt: PropTypes.string.isRequired, // 필요는 없음 raw 그냥 받음
-    })
+    }),
   ),
 };
 

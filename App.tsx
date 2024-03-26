@@ -55,8 +55,10 @@ export default function App() {
         const regularImgLoaded = await Asset.loadAsync(regularImgList);
         const roundImgLoaded = await Asset.loadAsync(roundImgList);
 
+        console.log(roundImgLoaded.length);
+
         // set mobx vars for preloaded imgs
-        if (regularImgLoaded.length === 7) {
+        if (regularImgLoaded.length === 10) {
           assetStore.setMessageEmotions({
             happy: regularImgLoaded[0].localUri,
             passion: regularImgLoaded[1].localUri,
