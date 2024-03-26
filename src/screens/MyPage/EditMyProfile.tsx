@@ -36,8 +36,8 @@ import Modal from 'react-native-modal';
 import {Ionicons} from '@expo/vector-icons';
 import {Colors} from '../../Config';
 import {ConfirmModalBtn, ConfirmModalText} from '../../components/DetailModal';
-import {RowContainer} from '../../components/Common';
 import Toast from '../../components/Toast';
+import {RowContainer} from '../../components/common/Common';
 
 const HeaderRightBtn = styled.TouchableOpacity`
   background-color: ${Colors.main};

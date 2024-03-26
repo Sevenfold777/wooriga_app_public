@@ -1,8 +1,8 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 
 export const Indicator = styled.View`
   margin: 0px 3px;
-  background-color: ${(props) => (props.focused ? "#dfdfdf" : "#262626")};
+  background-color: ${props => (props.focused ? '#dfdfdf' : '#262626')};
   width: 8px;
   height: 8px;
   border-radius: 4px;

@@ -70,15 +70,7 @@ export default function SignedInNav({}) {
           animation: 'fade_from_bottom',
         })}
       />
-      <Stack.Screen
-        name={'MessageSend'}
-        component={MessageSend}
-        options={{
-          headerTitle: '이야기 보내기',
-          // animation: 'slide_from_right',
-          ...(Platform.OS === 'ios' && {gestureResponseDistance: 200}),
-        }}
-      />
+
       <Stack.Screen
         name={'PhotoSelect'}
         component={PhotoSelect}
