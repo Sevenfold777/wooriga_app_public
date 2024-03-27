@@ -71,18 +71,30 @@ export const CommentNum = styled.Text`
   font-size: 12px;
 `;
 
-const EmotionWrapper = styled.View`
+export const EmotionWrapper = styled.View`
   flex: 2;
 `;
 
-const PayloadWrapper = styled.View`
+export const PayloadWrapper = styled.View`
   flex: 5;
 `;
 
-const Emotion = styled.Image`
+export const Emotion = styled.Image`
   width: 50px;
   height: 50px;
   margin: 12px;
+`;
+
+export const SpringBtn = styled.TouchableOpacity`
+  background-color: ${Colors.main};
+  padding: 10px;
+  margin: 0px 15px;
+  border-radius: 10px;
+`;
+
+export const SpringBtnText = styled.Text`
+  font-family: 'nanum-regular';
+  color: white;
 `;
 
 type Props = {

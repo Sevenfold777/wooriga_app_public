@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 
-export const Indicator = styled.View`
+export const Indicator = styled.View<{focused: boolean}>`
   margin: 0px 3px;
   background-color: ${props => (props.focused ? '#dfdfdf' : '#262626')};
   width: 8px;

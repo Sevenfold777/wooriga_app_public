@@ -63,7 +63,6 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {findMyFamilyApi, inviteFamilyApi} from '../../api/FamilyApi';
 import familyStore from '../../stores/FamilyStore';
-import {StartBtn, StartBtnText} from '../../components/letter/Letter';
 
 import {
   deleteLetterApi,
@@ -71,7 +70,7 @@ import {
   sendLetterApi,
 } from '../../api/LetterApi';
 import {Animated} from 'react-native';
-import GuideModal from '../../components/Modals/GuideModal';
+import GuideModal from '../../components/modals/GuideModal';
 import InviteModal from '../../components/Invite';
 import {INVITATION_URL} from '../../api/ApiConfig';
 import {SignedInScreenProps} from '../../navigators/types';

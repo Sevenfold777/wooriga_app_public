@@ -5,12 +5,9 @@ import {
   Animated,
   AppState,
   ScrollView,
-  StatusBar,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
-  View,
 } from 'react-native';
 import styled from 'styled-components/native';
 import {
@@ -18,7 +15,10 @@ import {
   findMessageLatestApi,
   keepMessageFamApi,
 } from '../../../api/MessageApi';
-import Message from '../../../components/message/Message';
+import Message, {
+  SpringBtn,
+  SpringBtnText,
+} from '../../../components/message/Message';
 import ScreenLayout from '../../../components/ScreenLayout';
 import {Ionicons, Octicons} from '@expo/vector-icons';
 import NoMessage from '../../../components/message/NoMessage';
@@ -26,30 +26,22 @@ import {ROUTE_NAME, ServiceLinked} from '../../../Strings';
 import {Colors} from '../../../Config';
 import {findBannersBarApi} from '../../../api/BannerApi';
 import BannerBar from '../../../components/BannerBar';
-import Modal from 'react-native-modal';
-import DailyEmotion, {ModalContainer} from '../../../components/DailyEmotion';
+import DailyEmotion from '../../../components/DailyEmotion';
 import Permissions from '../../../components/Permissions';
 import {inviteFamilyApi} from '../../../api/FamilyApi';
 import {observer} from 'mobx-react-lite';
 import familyStore from '../../../stores/FamilyStore';
 import InviteMessage from '../../../components/message/InviteMessage';
 import {INVITATION_URL} from '../../../api/ApiConfig';
-import {
-  ConfirmModalBtn,
-  ConfirmModalText,
-} from '../../../components/DetailModal';
-import Tutorial from '../../../components/Tutorial';
 import {checkLatestVersion, versionCompare} from '../../../helper';
-import UpdateModal from '../../../components/Modals/UpdateModal';
+import UpdateModal from '../../../components/modals/UpdateModal';
 import DeviceInfo from 'react-native-device-info';
 import authStore from '../../../stores/AuthStore';
-import GuideModal from '../../../components/Modals/GuideModal';
+import GuideModal from '../../../components/modals/GuideModal';
 import emotionStore from '../../../stores/EmotionStore';
-import {
-  MainTabScreenProps,
-  SignedInScreenProps,
-} from '../../../navigators/types';
+import {MainTabScreenProps} from '../../../navigators/types';
 import {RowContainer} from '../../../components/common/Common';
+import TutorialModal from '../../../components/modals/TutorialModal';
 
 const TitleContainer = styled.View`
   padding: 5px 7px;
@@ -63,25 +55,24 @@ const TitleText = styled.Text`
   padding: 15px 8px;
 `;
 
-const SpringBtn = styled.TouchableOpacity`
-  background-color: ${Colors.main};
-  padding: 10px;
-  margin: 0px 15px;
-  border-radius: 10px;
-`;
-
-const SpringBtnText = styled.Text`
-  font-family: 'nanum-regular';
-  color: white;
-`;
-
 function MessageHome({
   navigation,
   route: {params},
 }: MainTabScreenProps<'MessageHome'>) {
   const now = new Date().getTime();
+  // const serviceLinked: {
+  //   [key in ServiceLinked]: {
+  //     // screen: SignedInScreenProps<'MainTabNav'>['route'];
+  //     screen: string;
+  //     text: string;
+  //   };
+  // } = {
+  //   [ServiceLinked.LETTER]: {screen: 'LetterSend', text: '편지 보내기'},
+  //   [ServiceLinked.PEDIA]: {screen: 'FamilyPedia', text: '인물사전'},
+  //   [ServiceLinked.PHOTO]: {screen: 'PhotoSelect', text: '사진 올리기'},
+  // };
 
-  const {width: pageWidth, height: pageHeight} = useWindowDimensions();
+  const {width: pageWidth} = useWindowDimensions();
 
   /** react-query */
   const {data: bannersBar, isLoading: bannersBarLoading} = useQuery(
@@ -268,11 +259,7 @@ function MessageHome({
               <TitleText>오늘의 이야기</TitleText>
             </TitleContainer>
 
-            {[
-              ServiceLinked.LETTER,
-              ServiceLinked.PEDIA,
-              ServiceLinked.PHOTO,
-            ].includes(message?.data?.linkTo) ? (
+            {message?.data?.linkTo !== ServiceLinked.NONE ? (
               <Animated.View style={{transform: [{scale: headerRightAnim}]}}>
                 <SpringBtn
                   onPress={() =>
@@ -281,7 +268,9 @@ function MessageHome({
                         ? 'LetterSend'
                         : message?.data?.linkTo === ServiceLinked.PHOTO
                         ? 'PhotoSelect'
-                        : 'FamilyPediaMember', // TODO: params? - complete after family pedia renewal
+                        : 'FamilyPediaMember',
+                      // serviceLinked[message?.data?.linkTo].screen,
+                      // TODO: params? - complete after family pedia renewal
                     )
                   }>
                   <SpringBtnText>
@@ -290,6 +279,7 @@ function MessageHome({
                       : message?.data?.linkTo === ServiceLinked.PHOTO
                       ? '사진 올리기'
                       : '인물사전'}
+                    {/* {serviceLinked[message?.data?.linkTo].text} */}
                   </SpringBtnText>
                 </SpringBtn>
               </Animated.View>
@@ -329,8 +319,6 @@ function MessageHome({
           }
         />
 
-        <Permissions />
-
         {!emotionStore.emotionChosen && message?.data.linkTo === 'none' && (
           <Animated.View
             style={[
@@ -338,7 +326,6 @@ function MessageHome({
               {opacity: fadeAnim},
             ]}>
             <GuideModal
-              // payload="우리가족에게 내 기분을 알려주세요!"
               payload="가족들에게 내 기분을 알려주세요!"
               color={Colors.sub}
             />
@@ -346,50 +333,12 @@ function MessageHome({
         )}
       </ScrollView>
 
-      <Modal
-        isVisible={isTutorial}
-        onBackButtonPress={() => setTutorial(false)}
-        onBackdropPress={() => setTutorial(false)}
-        onSwipeComplete={() => setTutorial(false)}
-        animationIn="fadeInUp"
-        animationOut="fadeOutDown"
-        backdropTransitionOutTiming={0}
-        statusBarTranslucent
-        deviceHeight={
-          StatusBar.currentHeight
-            ? pageHeight + StatusBar.currentHeight + 10
-            : pageHeight + 10
-        }>
-        <ModalContainer>
-          <View
-            style={{
-              paddingTop: 5,
-              paddingHorizontal: 10,
-            }}>
-            <TitleContainer style={{marginVertical: 10, marginHorizontal: 15}}>
-              <Text style={{fontFamily: 'nanum-bold', fontSize: 16}}>
-                우리가 소개
-              </Text>
-            </TitleContainer>
-            <Tutorial width={pageWidth - 40} />
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              borderTopWidth: 0.3,
-              borderTopColor: Colors.borderDark,
-            }}>
-            <ConfirmModalBtn
-              onPress={() => {
-                setTutorial(false);
-              }}>
-              <ConfirmModalText>닫기</ConfirmModalText>
-            </ConfirmModalBtn>
-          </View>
-        </ModalContainer>
-      </Modal>
-
+      <Permissions />
+      <TutorialModal
+        isTutorial={isTutorial}
+        setTutorial={setTutorial}
+        pageWidth={pageWidth}
+      />
       <UpdateModal isVisible={isUpdateModal} setVisible={setUpdateModal} />
     </ScreenLayout>
   );

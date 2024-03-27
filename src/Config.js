@@ -19,7 +19,7 @@ export const BottomPhrases = {
   tired: '피곤한 하루에 위로 한 마디, 우리가',
   sharp: '언젠가 돌아보면 웃을 수 있길, 우리가',
   sad: '힘들 때는 가족한테 기대, 우리가',
-  noMessage: '가족에게 하고픈 이야기를 전달해보아요, 우리가',
+  noMessage: '가족에게 하고픈 이야기를 전해보아요, 우리가',
   balanceGame: '가족과 생각을 나눠보아요, 우리가',
 };
 
