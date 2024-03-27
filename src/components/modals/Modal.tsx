@@ -1,9 +1,11 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {StatusBar, useWindowDimensions} from 'react-native';
 import RNModal from 'react-native-modal';
 import styled from 'styled-components/native';
 import {Colors} from '../../Config';
-import {RowContainer} from './Common';
+import {RowContainer} from '../common/Common';
+import propTypes from 'prop-types';
 
 const ModalContainer = styled.View`
   background-color: white;
@@ -12,12 +14,6 @@ const ModalContainer = styled.View`
   border-radius: 15px;
   overflow: hidden;
 `;
-
-// const ConfirmModalContainer = styled.View`
-//   background-color: white;
-//   width: 300px;
-//   border-radius: 7px;
-// `;
 
 const ConfirmModalText = styled.Text`
   font-size: 16px;
@@ -33,12 +29,13 @@ const ConfirmModalBtn = styled.TouchableOpacity`
 
 type Props = {
   isVisible: boolean;
-  onClose(): void;
-  onConfirm(): void;
-  onCloseEnd(): void;
+  onClose: () => void;
+  onConfirm?: () => void;
+  onCloseEnd?: () => void;
   closeText?: string;
+  confirmExist?: boolean;
   confirmText?: string;
-  confirmDisabled: boolean;
+  confirmDisabled?: boolean;
   children: React.ReactNode;
 };
 
@@ -48,8 +45,9 @@ export default function Modal({
   onClose,
   onConfirm,
   onCloseEnd,
-  closeText = '취소',
+  closeText = '닫기',
   confirmText = '확인',
+  confirmExist = true,
   confirmDisabled,
 }: Props) {
   const {height: pageHeight} = useWindowDimensions();
@@ -80,17 +78,32 @@ export default function Modal({
           <ConfirmModalBtn onPress={onClose}>
             <ConfirmModalText>{closeText}</ConfirmModalText>
           </ConfirmModalBtn>
-          <ConfirmModalBtn
-            style={{
-              borderLeftWidth: 0.3,
-              borderLeftColor: Colors.borderDark,
-            }}
-            onPress={onConfirm}
-            disabled={confirmDisabled}>
-            <ConfirmModalText>{confirmText}</ConfirmModalText>
-          </ConfirmModalBtn>
+          {confirmExist ? (
+            <ConfirmModalBtn
+              style={{
+                borderLeftWidth: 0.3,
+                borderLeftColor: Colors.borderDark,
+              }}
+              onPress={onConfirm}
+              disabled={confirmDisabled}>
+              <ConfirmModalText>{confirmText}</ConfirmModalText>
+            </ConfirmModalBtn>
+          ) : (
+            <></>
+          )}
         </RowContainer>
       </ModalContainer>
     </RNModal>
   );
 }
+
+Modal.propTypes = {
+  isVisible: propTypes.bool.isRequired,
+  onClose: propTypes.func.isRequired,
+  onConfirm: propTypes.func,
+  onCloseEnd: propTypes.func,
+  closeText: propTypes.string,
+  confirmText: propTypes.string,
+  confirmExist: propTypes.bool,
+  confirmDisabled: propTypes.bool,
+};

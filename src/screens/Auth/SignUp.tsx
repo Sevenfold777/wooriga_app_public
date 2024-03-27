@@ -18,14 +18,11 @@ import {Ionicons} from '@expo/vector-icons';
 import {Controller, useForm} from 'react-hook-form';
 import {useMutation} from '@tanstack/react-query';
 import {createAccountApi, loginApi} from '../../api/AuthApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {METHOD, _promise} from '../../api/ApiConfig';
+import {_promise} from '../../api/ApiConfig';
 import authStore from '../../stores/AuthStore';
-import familyStore from '../../stores/FamilyStore';
 import {Colors} from '../../Config';
 import {ROUTE_NAME} from '../../Strings';
 import {Keyboard} from 'react-native';
-import DismissKeyboard from '../../components/DismissKeyboard';
 import {
   Body,
   HeaderContainer,
@@ -38,8 +35,6 @@ import {
   PermissionPayload,
 } from '../../components/Permissions';
 import Toast from '../../components/Toast';
-import Clipboard from '@react-native-clipboard/clipboard';
-import Toggle from '../../components/Toggle';
 import {RowContainer} from '../../components/common/Common';
 
 export const Wrapper = styled.View`

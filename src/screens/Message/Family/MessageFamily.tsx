@@ -28,19 +28,24 @@ import Comment, {
 } from '../../../components/Comment';
 import DetailModal from '../../../components/DetailModal';
 import InputLayout from '../../../components/InputLayout';
-import Message from '../../../components/message/Message';
+import Message, {
+  SpringBtn,
+  SpringBtnText,
+} from '../../../components/message/Message';
 import authStore from '../../../stores/AuthStore';
 import familyStore from '../../../stores/FamilyStore';
 import {Colors} from '../../../Config';
 import {ROUTE_NAME, ServiceLinked} from '../../../Strings';
 import {SignedInScreenProps} from '../../../navigators/types';
+import Toast from '../../../components/common/Toast';
+import NoMessage from '../../../components/message/NoMessage';
 
 export default function MessageFamily({
   navigation,
   route: {params},
 }: SignedInScreenProps<'MessageFamily'>) {
   // 가장 아래 (최신 댓글)
-  const commentsListRef = useRef();
+  const commentsListRef = useRef<FlatList>(null);
   const [isSent, setSent] = useState(false);
 
   // for Comments pagination (lazy loading)
@@ -125,7 +130,7 @@ export default function MessageFamily({
   const sendComment = useMutation(commentMessageFamApi, {
     onSuccess: async () => {
       setSent(true);
-      setRefreshing(true);
+
       await refetchMessage();
 
       setComments([]);
@@ -135,8 +140,6 @@ export default function MessageFamily({
       setIsLoading(true);
 
       await refetchComment();
-
-      setRefreshing(false);
     },
   });
 
@@ -157,36 +160,6 @@ export default function MessageFamily({
       setRefreshing(false);
     },
   });
-
-  // 4-2. Like Comment
-  const likeComment = useMutation(likeFamilyCommentApi, {
-    onSuccess: async () => {
-      await refetchMessage();
-    },
-  });
-
-  // 4-3. unlike Comment
-  const unlikeComment = useMutation(unlikeFamilyCommentApi, {
-    onSuccess: async () => {
-      await refetchMessage();
-    },
-  });
-
-  /** function: toggle like */
-  const toggleLike = (id, isLiked) =>
-    isLiked ? unlikeComment.mutate(id) : likeComment.mutate(id);
-
-  // 5-1. metoo Message
-  const metooMessage = useMutation(metooMessageFamApi);
-
-  // 5-2. quit metoo Message
-  const deleteMetooMessage = useMutation(deleteMetooMessageFamApi);
-
-  /** function: toggle metoo */
-  const toggleMetoo = (id, isMetoo, metoosCount) => {
-    isMetoo ? deleteMetooMessage.mutate(id) : metooMessage.mutate(id);
-    // console.log({ id, isMetoo, metoosCount });
-  };
 
   // 5-1. keep Message
   const keepMessage = useMutation(keepMessageFamApi);
@@ -211,34 +184,34 @@ export default function MessageFamily({
     Keyboard.dismiss();
   };
 
-  const renderMessage = () => (
-    <>
-      <Message
-        id={message.data.id}
-        payload={message.data.payload}
-        emotion={message.data.emotion}
-        commentsCount={message.data.commentsCount}
-        metoosCount={message.data.metoosCount}
-        isMetoo={message.data.isMetooed}
-        isKept={message.data.isKept}
-        toggleMetoo={toggleMetoo}
-        toggleKeep={toggleKeep}
-        onLastPage={headerRightSpring}
-      />
-      {!isLast && (
-        <MoreCommentsContainer
-          onPress={() => {
-            fetchMore();
-          }}>
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <MoreCommentsText>댓글 더 보기 +</MoreCommentsText>
-          )}
-        </MoreCommentsContainer>
-      )}
-    </>
-  );
+  const renderMessage = () =>
+    message ? (
+      <>
+        <Message
+          id={message.data.id}
+          payload={message.data.payload}
+          emotion={message.data.emotion}
+          commentsCount={message.data.commentsCount}
+          isKept={message.data.isKept}
+          toggleKeep={toggleKeep}
+          onLastPage={headerRightSpring}
+        />
+        {!isLast && (
+          <MoreCommentsContainer
+            onPress={() => {
+              fetchMore();
+            }}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <MoreCommentsText>댓글 더 보기 +</MoreCommentsText>
+            )}
+          </MoreCommentsContainer>
+        )}
+      </>
+    ) : (
+      <NoMessage />
+    );
 
   /** for comment Flatlist */
   const renderComments = ({item: comment}) => {
@@ -268,23 +241,11 @@ export default function MessageFamily({
     );
   };
 
-  // refetch commments + refresh flatlist
-  const [isRefreshing, setRefreshing] = useState(false);
-
-  const refresh = async () => {
-    setRefreshing(true);
-    await refetchMessage();
-    setRefreshing(false);
-  };
-
   /** 댓긋 우측 더보기: open Modal */
   const [isConfirmModal, setConfirmModal] = useState(false);
   const [isCommentModal, setCommentModal] = useState(false);
   const [commentModalTarget, setCommentModalTarget] = useState();
-  const memoized = useMemo(() => renderComments, [comments]);
-
-  /** 메세지 더보기 */
-  const [isDetailModal, setDetailModal] = useState(false);
+  const memoized = useMemo(() => renderComments, []);
 
   const headerRightAnim = useRef(new Animated.Value(1)).current;
   const headerRightSpring = (iter = 1) => {
@@ -311,38 +272,29 @@ export default function MessageFamily({
   };
 
   useEffect(() => {
-    if (
-      [ServiceLinked.LETTER, ServiceLinked.PEDIA, ServiceLinked.PHOTO].includes(
-        message?.data?.linkTo,
-      )
-    ) {
+    if (message?.data?.linkTo !== ServiceLinked.NONE) {
       navigation.setOptions({
+        // eslint-disable-next-line react/no-unstable-nested-components
         headerRight: () => (
           <Animated.View style={{transform: [{scale: headerRightAnim}]}}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: Colors.main,
-                padding: 10,
-                marginHorizontal: 15,
-                borderRadius: 10,
-              }}
+            <SpringBtn
               onPress={() =>
-                navigation.navigate(
+                navigation.push(
                   message?.data?.linkTo === ServiceLinked.LETTER
-                    ? ROUTE_NAME.LETTER_SEND
+                    ? 'LetterSend'
                     : message?.data?.linkTo === ServiceLinked.PHOTO
-                    ? ROUTE_NAME.PHOTO_SELECT
-                    : ROUTE_NAME.FAMILYPEDIA_HOME,
+                    ? 'PhotoSelect'
+                    : 'FamilyPediaMember',
                 )
               }>
-              <Text style={{fontFamily: 'nanum-regular', color: 'white'}}>
+              <SpringBtnText>
                 {message?.data?.linkTo === ServiceLinked.LETTER
                   ? '편지 보내기'
                   : message?.data?.linkTo === ServiceLinked.PHOTO
                   ? '사진 올리기'
                   : '인물사전'}
-              </Text>
-            </TouchableOpacity>
+              </SpringBtnText>
+            </SpringBtn>
           </Animated.View>
         ),
       });
@@ -383,7 +335,7 @@ export default function MessageFamily({
         })}
         onLayout={() => {
           if (comments.length > 0 && isSent) {
-            commentsListRef?.current.scrollToEnd();
+            commentsListRef?.current?.scrollToEnd();
             setSent(false);
           }
         }}

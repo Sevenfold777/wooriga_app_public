@@ -32,8 +32,8 @@ export const TitleContainer = styled.View`
 `;
 
 export const TitleText = styled.Text`
-  font-size: 18px;
-  font-weight: 600;
+  font-family: 'nanum-bold';
+  font-size: 16px;
 `;
 
 // payload for common pages

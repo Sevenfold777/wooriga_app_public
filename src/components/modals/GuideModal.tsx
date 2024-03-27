@@ -1,26 +1,22 @@
-import styled from "styled-components/native";
-import propTypes from "prop-types";
-import { Colors } from "../../Config";
-import Modal from "react-native-modal";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { useEffect, useState } from "react";
+import React from 'react';
+import styled from 'styled-components/native';
+import propTypes from 'prop-types';
+import {Colors} from '../../Config';
 
 const Container = styled.TouchableOpacity`
   justify-content: center;
-  /* align-items: center; */
   align-items: flex-start;
 `;
 
-const ChatBubble = styled.View`
+const ChatBubble = styled.View<{color: string}>`
   padding: 10px 20px;
   border-radius: 10px;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => props.color};
+  background-color: ${props => props.color};
 `;
 
-const BubbleArrow = styled.View`
-  /* margin-left: 10px; */
+const BubbleArrow = styled.View<{color: string}>`
   width: 0px;
   height: 0px;
   background-color: transparent;
@@ -31,14 +27,22 @@ const BubbleArrow = styled.View`
   border-left-width: 3px;
   border-top-color: transparent;
   border-right-color: transparent;
-  border-bottom-color: ${(props) => props.color};
+  border-bottom-color: ${props => props.color};
   border-left-color: transparent;
 `;
 
 const PayloadText = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   font-size: 12px;
 `;
+
+type Props = {
+  payload: string;
+  color?: string;
+  onPress?: () => void;
+  pressDisabled?: boolean;
+  arrowLeft?: number;
+};
 
 export default function GuideModal({
   payload,
@@ -46,10 +50,10 @@ export default function GuideModal({
   onPress = () => {},
   pressDisabled = false,
   arrowLeft = 40,
-}) {
+}: Props) {
   return (
     <Container onPress={onPress} disabled={pressDisabled}>
-      <BubbleArrow color={color} style={{ marginLeft: arrowLeft }} />
+      <BubbleArrow color={color} style={{marginLeft: arrowLeft}} />
       <ChatBubble color={color}>
         <PayloadText allowFontScaling={false}>{payload}</PayloadText>
       </ChatBubble>
