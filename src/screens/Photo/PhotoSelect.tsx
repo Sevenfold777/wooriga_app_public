@@ -227,11 +227,7 @@ export default function PhotoSelect({
           numColumns={numCols}
           showsVerticalScrollIndicator={false}
           refreshing={isLoading}
-          onEndReached={() => {
-            // console.log(new Date());
-            getPhotos();
-            // console.log(new Date());
-          }}
+          onEndReached={() => getPhotos()}
           onEndReachedThreshold={2}
           scrollEnabled={!isLoading}
         />

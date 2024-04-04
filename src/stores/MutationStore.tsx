@@ -1,11 +1,11 @@
-import { observable } from "mobx";
+import {observable} from 'mobx';
 
 const mutationStore = observable({
   // mutation status
   isMutated: false,
 
   // set Mutation status
-  setStatus(isMutated) {
+  setStatus(isMutated: boolean) {
     this.isMutated = isMutated;
   },
 });

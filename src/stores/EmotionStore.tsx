@@ -1,9 +1,9 @@
-import { observable } from "mobx";
+import {observable} from 'mobx';
 
 const emotionStore = observable({
   emotionChosen: true,
 
-  setEmotionChosen(bool) {
+  setEmotionChosen(bool: boolean) {
     this.emotionChosen = bool;
   },
 });

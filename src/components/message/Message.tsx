@@ -4,6 +4,7 @@ import ActionIcon from './ActionIcon';
 import assetStore from '../../stores/AssetStore';
 import PropTypes from 'prop-types';
 import {
+  DeviceEventEmitter,
   Keyboard,
   TouchableWithoutFeedback,
   useWindowDimensions,
@@ -14,7 +15,6 @@ import {BGColors, BottomPhrases, Colors} from '../../Config';
 import {IndicatorWrapper} from '../CarouselIndicator';
 import PagerView from 'react-native-pager-view';
 import PaginationDot from 'react-native-animated-pagination-dot';
-import {MainTabScreenProps} from '../../navigators/types';
 import {RowContainer} from '../Common';
 
 /** styled-components */
@@ -127,9 +127,8 @@ export default function Message({
   const [currentPage, setCurrentPage] = useState(0);
 
   /** navigation and route */
-  const navigation =
-    useNavigation<MainTabScreenProps<'MessageHome'>['navigation']>();
-  const route = useRoute<MainTabScreenProps<'MessageHome'>['route']>();
+  const navigation = useNavigation();
+  const route = useRoute();
 
   const [kept, setKept] = useState(isKept);
   const [commentsCnt, setCommentsCnt] = useState(commentsCount);
@@ -180,6 +179,19 @@ export default function Message({
     </MessageContainer>
   );
 
+  useEffect(() => {
+    if (route.name === 'MessageFamily') {
+      const unsubscribe = navigation.addListener('beforeRemove', e => {
+        if (isKept !== kept) {
+          toggleKeep(id, !kept);
+          DeviceEventEmitter.emit('isKept', {id, isKept: !kept});
+        }
+      });
+
+      return unsubscribe;
+    }
+  }, [navigation, kept]);
+
   return (
     <Container>
       <View style={{width: pageWidth, aspectRatio: 4 / 3}}>
@@ -199,7 +211,7 @@ export default function Message({
               key={index}
               onPress={() =>
                 route.name === 'MessageHome'
-                  ? navigation.push('MessageFamily', {messageId: id})
+                  ? navigation.navigate('MessageFamily', {messageId: id})
                   : Keyboard.dismiss()
               }>
               {renderMessage({payload: message, emotion})}
@@ -225,7 +237,9 @@ export default function Message({
             </Action>
 
             <Action
-              onPress={() => navigation.push('MessageFamily', {messageId: id})}
+              onPress={() =>
+                navigation.navigate('MessageFamily', {messageId: id})
+              }
               disabled={route.name !== 'MessageHome'}>
               <ActionIcon iconName="chatbubble-ellipses" isClicked={false} />
               <CommentNum>{commentsCnt}</CommentNum>

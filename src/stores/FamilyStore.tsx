@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { observable, runInAction } from "mobx";
-import authStore from "./AuthStore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {observable, runInAction} from 'mobx';
+import authStore from './AuthStore';
 
 const familyStore = observable({
   // family members' nickname
@@ -9,7 +9,7 @@ const familyStore = observable({
 
   async preloadFamilyMembers() {
     // local storage에 저장된 가족 불러오기
-    const savedMembers = await AsyncStorage.getItem("familyMembers");
+    const savedMembers = await AsyncStorage.getItem('familyMembers');
 
     runInAction(() => {
       if (savedMembers) {
@@ -22,9 +22,9 @@ const familyStore = observable({
   async setNewfamilyMembers(users) {
     // 기존 id 없으면 기본 닉네임으로 가족 저장
     const prevUsersIds = Object.keys(this.members);
-    const currentUserIds = users.map((user) => user.id);
+    const currentUserIds = users.map(user => user.id);
 
-    users.forEach((user) => {
+    users.forEach(user => {
       if (
         !prevUsersIds.includes(String(user.id)) &&
         user.id !== authStore.userId
@@ -33,7 +33,7 @@ const familyStore = observable({
       }
     });
 
-    prevUsersIds.forEach((id) => {
+    prevUsersIds.forEach(id => {
       if (id === authStore.userId.toString()) {
         delete this.members[id];
       } else if (!currentUserIds.includes(+id)) {
@@ -42,16 +42,16 @@ const familyStore = observable({
     });
 
     // localstorage에 저장
-    await AsyncStorage.setItem("familyMembers", JSON.stringify(this.members));
+    await AsyncStorage.setItem('familyMembers', JSON.stringify(this.members));
   },
 
   /** change nickname */
-  async changeNickname({ id, newNickname }) {
+  async changeNickname({id, newNickname}) {
     // change membes var
     this.members[id] = newNickname;
 
     // localstorage에 저장
-    await AsyncStorage.setItem("familyMembers", JSON.stringify(this.members));
+    await AsyncStorage.setItem('familyMembers', JSON.stringify(this.members));
   },
 
   setInviteNeeded(bool) {

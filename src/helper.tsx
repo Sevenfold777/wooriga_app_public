@@ -5,7 +5,6 @@ import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import * as RNFS from 'react-native-fs';
 import {Linking, PermissionsAndroid, Platform} from 'react-native';
-import authStore from './stores/AuthStore';
 import Toast from './components/Toast';
 import axios from 'axios';
 
@@ -31,7 +30,7 @@ export async function requestNotificationPermission() {
 
 // get permission
 export async function requestMediaPermission() {
-  const {accessPrivileges, status, granted} =
+  const {accessPrivileges, status} =
     await MediaLibrary.requestPermissionsAsync();
 
   if (status !== 'granted') {
@@ -48,8 +47,7 @@ export async function requestMediaPermission() {
 export async function getPermissions() {
   let result;
 
-  const {accessPrivileges, status, granted} =
-    await MediaLibrary.getPermissionsAsync();
+  const {accessPrivileges, status} = await MediaLibrary.getPermissionsAsync();
 
   if (status !== 'granted') {
     //  "실패. 접근 권한 획득 실패, 직접 설정해야 함."
@@ -69,7 +67,7 @@ export async function getPermissions() {
 }
 
 /** Image Download to "Wooriga" Album */
-export async function downloadImage(uri) {
+export async function downloadImage(uri: string) {
   const fileUri = `${
     FileSystem.documentDirectory
   }${new Date().getTime()}${uri.substring(uri.lastIndexOf('.'))}`;
@@ -84,8 +82,10 @@ const COMPRESS_SIZE_THRESHOLD = 0.7; // 최대 사진 용량 700kB
 const MAXIMUM_PHOTO_SIZE = 10;
 
 // get file size func
-const getFileSize = async uri => {
-  const info = await FileSystem.getInfoAsync(uri, {size: true});
+const getFileSize = async (uri: string) => {
+  const info = await FileSystem.getInfoAsync(uri, {
+    size: true,
+  });
   return info.size / (1024 * 1024);
 };
 

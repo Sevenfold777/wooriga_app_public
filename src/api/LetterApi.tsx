@@ -1,44 +1,55 @@
-import { METHOD, _promise } from "./ApiConfig";
+import {METHOD, _promise} from './ApiConfig';
 
-export function findLettersReceivedApi({ prev, isTimeCapsule = false }) {
+type LetterType = {
+  id: number;
+  title: string;
+  payload: string;
+  emotion: string;
+  isTimeCapsule: boolean;
+  receiveDate?: Date;
+  receivers: number[];
+  isTemp?: boolean;
+};
+
+export function findLettersReceivedApi({prev = 0, isTimeCapsule = false}) {
   return _promise(
     METHOD.GET,
-    `letter/received?isTimeCapsule=${isTimeCapsule}&prev=${prev}`
+    `letter/received?isTimeCapsule=${isTimeCapsule}&prev=${prev}`,
   );
 }
 
-export function findLettersSentApi({ prev, isTimeCapsule = false }) {
+export function findLettersSentApi({prev = 0, isTimeCapsule = false}) {
   return _promise(
     METHOD.GET,
-    `letter/sent?isTimeCapsule=${isTimeCapsule}&prev=${prev}`
+    `letter/sent?isTimeCapsule=${isTimeCapsule}&prev=${prev}`,
   );
 }
 
-export function findLetterReceivedApi({ id }) {
+export function findLetterReceivedApi({id}: {id: number}) {
   return _promise(METHOD.GET, `letter/received/${id}`);
 }
 
-export function findLetterSentApi({ id }) {
+export function findLetterSentApi({id}: {id: number}) {
   return _promise(METHOD.GET, `letter/sent/${id}`);
 }
 
-export function findLettersKeptApi({ prev }) {
+export function findLettersKeptApi({prev = 0}) {
   return _promise(METHOD.GET, `letter/kept?prev=${prev}`);
 }
 
-export function keepLetterApi({ id }) {
+export function keepLetterApi({id}: {id: number}) {
   return _promise(METHOD.POST, `letter/${id}/keep`);
 }
 
-export function unkeepLetterApi({ id }) {
+export function unkeepLetterApi({id}: {id: number}) {
   return _promise(METHOD.DELETE, `letter/${id}/keep`);
 }
 
-export function readLetterApi({ id }) {
+export function readLetterApi({id}: {id: number}) {
   return _promise(METHOD.PATCH, `letter/${id}/read`);
 }
 
-export function deleteLetterApi({ id }) {
+export function deleteLetterApi({id}: {id: number}) {
   return _promise(METHOD.DELETE, `letter/${id}`);
 }
 
@@ -50,9 +61,8 @@ export function editLetterApi({
   isTimeCapsule,
   receiveDate,
   receivers,
-  themeId,
   isTemp = false,
-}) {
+}: LetterType) {
   return _promise(METHOD.PATCH, `letter/${id}`, {
     title,
     payload,
@@ -60,7 +70,6 @@ export function editLetterApi({
     isTimeCapsule,
     receiveDate,
     receivers,
-    themeId,
     isTemp,
   });
 }
@@ -72,33 +81,23 @@ export function sendLetterApi({
   isTimeCapsule,
   receiveDate,
   receivers,
-  themeId,
   isTemp = false,
-}) {
-  return _promise(METHOD.POST, `letter`, {
+}: LetterType) {
+  return _promise(METHOD.POST, 'letter', {
     title,
     payload,
     emotion,
     isTimeCapsule,
     receiveDate,
     receivers,
-    themeId,
     isTemp,
   });
 }
 
-export function findLetterThemesApi({ prev }) {
-  return _promise(METHOD.GET, `letter/themes?prev=${prev}`);
-}
-
-export function findLetterThemeApi({ id }) {
-  return _promise(METHOD.GET, `letter/theme/${id}`);
-}
-
 export function getLetterNotifApi() {
-  return _promise(METHOD.GET, `letter/home`);
+  return _promise(METHOD.GET, 'letter/home');
 }
 
 export function getLetterGuideApi() {
-  return _promise(METHOD.GET, `letter/guide`);
+  return _promise(METHOD.GET, 'letter/guide');
 }

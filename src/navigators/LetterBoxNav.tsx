@@ -2,7 +2,6 @@ import React from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import LetterBoxReceived from '../screens/Letter/LetterBoxReceived';
 import LetterBoxSent from '../screens/Letter/LetterBoxSent';
-import {ROUTE_NAME} from '../Strings';
 import {TabBar} from './MyPageNav';
 import {LetterBoxParams} from './types';
 

@@ -1,12 +1,12 @@
-import { observable } from "mobx";
+import {observable} from 'mobx';
 
 const letterStore = observable({
   // mutation status
-  letterTitle: "",
+  letterTitle: '',
   targetsList: [], // {id: number, name: string}[] // 전체선택: -1
   sendTargets: [],
-  letterEmotion: "happy",
-  letterPayload: "",
+  letterEmotion: 'happy',
+  letterPayload: '',
   timeCapsuleTime: undefined,
   isTimeCapsule: false,
   theme: undefined, // {id: number, title: string, examples: LetterExample[]}
@@ -34,9 +34,9 @@ const letterStore = observable({
 
   // reset
   resetLetter() {
-    this.letterTitle = "";
-    this.letterEmotion = "happy";
-    this.letterPayload = "";
+    this.letterTitle = '';
+    this.letterEmotion = 'happy';
+    this.letterPayload = '';
     this.sendTargets = [];
     this.targetsList = [];
     this.timeCapsuleTime = undefined;
@@ -52,8 +52,8 @@ const letterStore = observable({
     this.sendTargets = targets;
   },
 
-  setTheme({ id, title, examples }) {
-    this.theme = { id, title, examples };
+  setTheme({id, title, examples}) {
+    this.theme = {id, title, examples};
   },
 
   resetTheme() {

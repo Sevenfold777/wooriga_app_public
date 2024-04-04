@@ -1,41 +1,52 @@
-import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+/* eslint-disable react-native/no-inline-styles */
+import {useQuery} from '@tanstack/react-query';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   DeviceEventEmitter,
   FlatList,
-  RefreshControl,
   ScrollView,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
-import styled from "styled-components/native";
-import {
-  findFamilyMessagesApi,
-  findMessageFamKeptApi,
-} from "../../../api/MessageApi";
-import MessageMiddle from "../../../components/message/MessageMiddle";
-import NoContent from "../../../components/NoContent";
+} from 'react-native';
+import styled from 'styled-components/native';
+import {findMessageFamKeptApi} from '../../../api/MessageApi';
+import MessageMiddle from '../../../components/message/MessageMiddle';
+import NoContent from '../../../components/NoContent';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from "../../../components/ScreenLayout";
-import Toast from "../../../components/Toast";
+} from '../../../components/ScreenLayout';
+import {SignedInScreenProps} from '../../../navigators/types';
+import {BGColors} from '../../../Config';
 
-const MessageWrapper = styled.View`
-  margin-bottom: 0px;
+const RowWrapper = styled.View`
+  margin-bottom: 30px;
 `;
 
 const DateText = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   font-size: 16px;
   padding: 15px;
 `;
 
-export default function MessageKeep({ navigation, params }) {
+type MessageType = {
+  date: string;
+  messages: {
+    commentsCount: number;
+    emotion: keyof typeof BGColors;
+    id: number;
+    isKept: boolean;
+    isMetooed: boolean;
+    linkTo: string;
+    metoosCount: number;
+    payload: string;
+    receiveDate: string;
+  }[];
+};
+
+export default function MessageKeep({}: SignedInScreenProps<'MessageKeep'>) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -44,15 +55,11 @@ export default function MessageKeep({ navigation, params }) {
     setQueryEnable(true);
   };
 
-  const {
-    data,
-    // isLoading,
-    refetch: refetchMessages,
-  } = useQuery(
-    ["findFamilyMessageKept", { prev }],
-    () => findMessageFamKeptApi({ prev }),
+  const {refetch: refetchMessages} = useQuery(
+    ['findFamilyMessageKept', {prev}],
+    () => findMessageFamKeptApi({prev}),
     {
-      onSuccess: ({ data }) => {
+      onSuccess: ({data}: {data: MessageType[]}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -73,8 +80,6 @@ export default function MessageKeep({ navigation, params }) {
               messageConcat,
               ...data.slice(1),
             ]);
-
-            // console.log(messages.map((message) => message.receiveAt));
           } else {
             setMessages([...messages, ...data]);
           }
@@ -84,7 +89,7 @@ export default function MessageKeep({ navigation, params }) {
         setIsLoading(false);
       },
       enabled: queryEnable,
-    }
+    },
   );
 
   const now = new Date();
@@ -104,7 +109,7 @@ export default function MessageKeep({ navigation, params }) {
     setRefreshing(false);
   };
 
-  const renderMessages = ({ item: messageByDate }) => {
+  const renderMessages = ({item: messageByDate}: {item: MessageType}) => {
     const dateObj = new Date(messageByDate.date);
 
     const dateString =
@@ -115,19 +120,14 @@ export default function MessageKeep({ navigation, params }) {
           }월 ${dateObj.getDate()}일`;
 
     return (
-      <View
-        style={{
-          marginBottom: 30,
-        }}
-      >
+      <RowWrapper>
         <DateText>{dateString}</DateText>
 
         <ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          bounces={false}
-        >
-          {messageByDate.messages.map((message) => (
+          bounces={false}>
+          {messageByDate.messages.map(message => (
             <MessageMiddle
               key={message.id}
               messageId={message.id}
@@ -136,18 +136,18 @@ export default function MessageKeep({ navigation, params }) {
             />
           ))}
         </ScrollView>
-      </View>
+      </RowWrapper>
     );
   };
 
   useEffect(() => {
     const keepSubscription = DeviceEventEmitter.addListener(
-      "isKept",
-      ({ id, isKept }) => {
+      'isKept',
+      ({id}: {id: number; isKept: boolean}) => {
         const newMessages = messages
-          .map((date, index) => {
+          .map(date => {
             const indexToChange = date.messages.findIndex(
-              (message) => message.id === id
+              message => message.id === id,
             );
 
             const newDateMessages = date;
@@ -158,14 +158,14 @@ export default function MessageKeep({ navigation, params }) {
 
             return newDateMessages;
           })
-          .filter((date) => date.messages.length !== 0);
+          .filter(date => date.messages.length !== 0);
 
         if (!newMessages.length) {
           setIsLast(true);
         }
 
         setMessages(newMessages);
-      }
+      },
     );
 
     return () => keepSubscription.remove();
@@ -194,11 +194,12 @@ export default function MessageKeep({ navigation, params }) {
         }}
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
-        contentContainerStyle={{ minHeight: "100%" }}
+        contentContainerStyle={{minHeight: '100%'}}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ListEmptyComponent={() => (
           <NoContent
             payload={
-              "보관한 이야기가 없습니다\n기억하고 싶은 이야기를 보관해보세요"
+              '보관한 이야기가 없습니다\n기억하고 싶은 이야기를 보관해보세요'
             }
           />
         )}

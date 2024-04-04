@@ -219,7 +219,7 @@ export default function FamilyPediaMember({
       for (let i = 0; i < modifiedKeys.length; i++) {
         if (modifiedKeys[i].slice(0, 2) === 'o_') {
           modifiedRows.push({
-            id: parseInt(modifiedKeys[i].slice(2)),
+            id: parseInt(modifiedKeys[i].slice(2), 10),
             payload: data[modifiedKeys[i]],
           });
         } else {
@@ -231,7 +231,9 @@ export default function FamilyPediaMember({
 
       // 2. for new rows (POST)
       for (let i = 0; i < newRowsCnt; i++) {
-        if (!rawInputs[`ntag_${i}`]) continue;
+        if (!rawInputs[`ntag_${i}`]) {
+          continue;
+        }
 
         newRows.push({
           tag: rawInputs[`ntag_${i}`],
@@ -267,6 +269,7 @@ export default function FamilyPediaMember({
     setModify(!isModify);
   };
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   const HeaderRight = () => (
     <TouchableOpacity
       style={{

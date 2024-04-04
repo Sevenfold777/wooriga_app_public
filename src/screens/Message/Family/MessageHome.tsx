@@ -75,7 +75,7 @@ function MessageHome({
   const {width: pageWidth} = useWindowDimensions();
 
   /** react-query */
-  const {data: bannersBar, isLoading: bannersBarLoading} = useQuery(
+  const {data: bannersBar} = useQuery(
     ['BannersBar', ROUTE_NAME.MESSAGE_HOME],
     () => findBannersBarApi({screen: ROUTE_NAME.MESSAGE_HOME}),
   );

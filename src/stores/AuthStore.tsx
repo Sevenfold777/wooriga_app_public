@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import {observable, runInAction} from 'mobx';
 import {ACCESS_TOKEN, REFRESH_TOKEN} from '../Strings';
@@ -28,17 +27,19 @@ const authStore = observable({
   }) {
     runInAction(() => {
       this.isLoggedIn = true;
-      this.accessToken = accessToken;
+      this.accessToken = accessToken ? accessToken : '';
     });
 
-    await SecureStore.setItemAsync(ACCESS_TOKEN, accessToken);
+    if (accessToken) {
+      await SecureStore.setItemAsync(ACCESS_TOKEN, accessToken);
+    }
 
     if (refreshToken) {
       await SecureStore.setItemAsync(REFRESH_TOKEN, refreshToken);
     }
 
-    const me = await _promise(METHOD.GET, `users/my`);
-    const family = await _promise(METHOD.GET, `family/my`);
+    const me = await _promise(METHOD.GET, 'users/my');
+    const family = await _promise(METHOD.GET, 'family/my');
 
     // 가족 nickname set
     await familyStore.preloadFamilyMembers();
@@ -47,7 +48,7 @@ const authStore = observable({
     // check fcm token; 토큰이 달라졌으면 갱신
     const fcmToken = await messaging().getToken();
     if (fcmToken !== me?.data.fcmToken) {
-      await _promise(METHOD.PATCH, `users`, {fcmToken});
+      await _promise(METHOD.PATCH, 'users', {fcmToken});
     }
 
     runInAction(() => {
@@ -61,7 +62,7 @@ const authStore = observable({
 
   // logout action
   async logoutAction() {
-    await _promise(METHOD.PATCH, `users`, {fcmToken: ''});
+    await _promise(METHOD.PATCH, 'users', {fcmToken: ''});
 
     await SecureStore.deleteItemAsync(ACCESS_TOKEN);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN);
@@ -73,7 +74,15 @@ const authStore = observable({
   },
 
   // set ids
-  setUserId({userId, userName, familyId}) {
+  setUserId({
+    userId,
+    userName,
+    familyId,
+  }: {
+    userId: number;
+    userName: string;
+    familyId: number;
+  }) {
     if (!userId || !userName || !familyId) {
       return;
     }
@@ -82,23 +91,7 @@ const authStore = observable({
     this.userName = userName;
   },
 
-  // async loadPermissionChecked() {
-  //   const isChecked = await AsyncStorage.getItem("permissionsChecked");
-
-  //   runInAction(() => {
-  //     this.permissionsChecked = Boolean(JSON.parse(isChecked));
-  //   });
-  // },
-
-  // async setPermissionChecked(isChecked) {
-  //   await AsyncStorage.setItem("permissionsChecked", JSON.stringify(isChecked));
-
-  //   runInAction(() => {
-  //     this.permissionsChecked = isChecked;
-  //   });
-  // },
-
-  setPermission(isChecked) {
+  setPermission(isChecked: boolean) {
     this.permissionsChecked = isChecked;
   },
 
@@ -109,10 +102,15 @@ const authStore = observable({
       });
 
       const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN);
-      const refreshTokenExpires = (await jwtDecode(refreshToken)).exp;
 
-      // refreshToken도 만료되었다면 로그아웃
       runInAction(() => {
+        if (!refreshToken) {
+          this.logoutAction();
+          return;
+        }
+
+        const refreshTokenExpires = jwtDecode<{exp: number}>(refreshToken).exp;
+
         const now = new Date().getTime() / 1000;
 
         if (now > refreshTokenExpires) {
@@ -124,7 +122,7 @@ const authStore = observable({
       // refresh ACCESS TOKEN
       const result = await axios({
         method: METHOD.PATCH.type,
-        url: `users/refreshToken`,
+        url: 'users/refreshToken',
         baseURL: SERVER_URL,
         data: {refreshToken},
       });

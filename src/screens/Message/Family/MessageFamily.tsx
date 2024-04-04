@@ -7,20 +7,14 @@ import {
   DeviceEventEmitter,
   FlatList,
   Keyboard,
-  Text,
-  TouchableOpacity,
 } from 'react-native';
 import {
   commentMessageFamApi,
   deleteKeepMessageFamApi,
   deleteMessageFamCommentApi,
-  deleteMetooMessageFamApi,
   findMessageFamCommentsApi,
   findMessageFamilyApi,
   keepMessageFamApi,
-  likeFamilyCommentApi,
-  metooMessageFamApi,
-  unlikeFamilyCommentApi,
 } from '../../../api/MessageApi';
 import Comment, {
   MoreCommentsContainer,
@@ -34,11 +28,33 @@ import Message, {
 } from '../../../components/message/Message';
 import authStore from '../../../stores/AuthStore';
 import familyStore from '../../../stores/FamilyStore';
-import {Colors} from '../../../Config';
-import {ROUTE_NAME, ServiceLinked} from '../../../Strings';
+import {ServiceLinked} from '../../../Strings';
 import {SignedInScreenProps} from '../../../navigators/types';
 import Toast from '../../../components/common/Toast';
 import NoMessage from '../../../components/message/NoMessage';
+import {BGColors} from '../../../Config';
+
+type MessageType = {
+  commentsCount: number;
+  emotion: keyof typeof BGColors;
+  id: number;
+  isKept: boolean;
+  linkTo: string;
+  payload: string;
+  receiveDate: string;
+};
+
+type CommentType = {
+  author: {
+    id: number;
+    userName: string;
+  };
+  id: number;
+  payload: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function MessageFamily({
   navigation,
@@ -51,7 +67,7 @@ export default function MessageFamily({
   // for Comments pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -74,15 +90,15 @@ export default function MessageFamily({
     isLoading: messageIsLoading,
     refetch: refetchMessage,
   } = useQuery(
-    ['MessageFamily', params?.messageId],
-    () => findMessageFamilyApi(params?.messageId),
+    ['MessageFamily', params.messageId],
+    () => findMessageFamilyApi(params.messageId),
     {
       onError: () => {
         Toast({message: '게시물이 존재하지 않습니다'});
         navigation.goBack();
       },
 
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: MessageType}) => {
         if (!data) {
           Toast({message: '게시물이 존재하지 않습니다'});
           navigation.goBack();
@@ -98,18 +114,12 @@ export default function MessageFamily({
     },
   );
 
-  const messageId = message?.data?.id;
-
   // 2. 댓글 보기
-  const {
-    data,
-    isLoading: commentsIsLoading,
-    refetch: refetchComment,
-  } = useQuery(
-    ['Comments', messageId, prev],
-    () => findMessageFamCommentsApi({id: messageId, prev}),
+  const {refetch: refetchComment} = useQuery(
+    ['Comments', params.messageId, prev],
+    () => findMessageFamCommentsApi({id: params.messageId, prev}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: CommentType[]}) => {
         if (data.length < 20) {
           setIsLast(true);
         } else {
@@ -122,7 +132,7 @@ export default function MessageFamily({
         setQueryEnable(false);
         setIsLoading(false);
       },
-      enabled: !!messageId && queryEnable,
+      enabled: !!params.messageId && queryEnable,
     },
   );
 
@@ -146,7 +156,6 @@ export default function MessageFamily({
   // 4-1. comment Detail: 댓글 삭제
   const deleteComment = useMutation(deleteMessageFamCommentApi, {
     onSuccess: async () => {
-      setRefreshing(true);
       await refetchMessage();
 
       setComments([]);
@@ -156,8 +165,6 @@ export default function MessageFamily({
       setIsLoading(true);
 
       await refetchComment();
-
-      setRefreshing(false);
     },
   });
 
@@ -168,15 +175,15 @@ export default function MessageFamily({
   const deleteKeepMessage = useMutation(deleteKeepMessageFamApi);
 
   // /** function: toggle keep */
-  const toggleKeep = (id, isKept) => {
+  const toggleKeep = (id: number, isKept: boolean) => {
     isKept ? deleteKeepMessage.mutate(id) : keepMessage.mutate(id);
   };
 
   /** onValid */
-  const onValid = async data => {
+  const onValid = async ({comment}: {comment: string}) => {
     sendComment.mutate({
-      id: message?.data?.id,
-      payload: {payload: data.comment},
+      id: params.messageId,
+      payload: {payload: comment},
     });
 
     // 키보드 내리고 input 값 지우기
@@ -214,21 +221,15 @@ export default function MessageFamily({
     );
 
   /** for comment Flatlist */
-  const renderComments = ({item: comment}) => {
+  const renderComments = ({item: comment}: {item: CommentType}) => {
     return (
       <Comment
-        id={comment.id}
         userId={comment.author.id}
         userName={
           familyStore.members[comment.author.id] || comment.author.userName
         }
         timeWritten={comment.createdAt}
         payload={comment.payload}
-        // likes={comment.likes}
-        setCommentModal={setCommentModal}
-        setDetailTarget={setCommentModalTarget}
-        // toggleLike={toggleLike}
-        profileImage={comment.author.profileImage}
         onLongPress={() => {
           setCommentModal(true);
           setCommentModalTarget({
@@ -244,7 +245,10 @@ export default function MessageFamily({
   /** 댓긋 우측 더보기: open Modal */
   const [isConfirmModal, setConfirmModal] = useState(false);
   const [isCommentModal, setCommentModal] = useState(false);
-  const [commentModalTarget, setCommentModalTarget] = useState();
+  const [commentModalTarget, setCommentModalTarget] = useState<{
+    id: number;
+    authorId: number;
+  }>();
   const memoized = useMemo(() => renderComments, []);
 
   const headerRightAnim = useRef(new Animated.Value(1)).current;
@@ -272,7 +276,7 @@ export default function MessageFamily({
   };
 
   useEffect(() => {
-    if (message?.data?.linkTo !== ServiceLinked.NONE) {
+    if (message?.data?.linkTo && message.data.linkTo !== ServiceLinked.NONE) {
       navigation.setOptions({
         // eslint-disable-next-line react/no-unstable-nested-components
         headerRight: () => (
@@ -346,7 +350,6 @@ export default function MessageFamily({
       {/** Modal for Comment Detail */}
       {commentModalTarget?.authorId === authStore.userId && (
         <DetailModal
-          targetId={commentModalTarget?.id}
           isDetailModal={isCommentModal}
           isConfirmModal={isConfirmModal}
           setDetailModal={setCommentModal}

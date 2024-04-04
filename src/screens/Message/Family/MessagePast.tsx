@@ -1,26 +1,18 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useState} from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  View,
-} from 'react-native';
+import {ActivityIndicator, FlatList, ScrollView} from 'react-native';
 import styled from 'styled-components/native';
 import {findFamilyMessagesApi} from '../../../api/MessageApi';
-import HomeMessage from '../../../components/message/MessageSmall';
-import Message from '../../../components/message/Message';
 import MessageMiddle from '../../../components/message/MessageMiddle';
 import NoContent from '../../../components/NoContent';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
 } from '../../../components/ScreenLayout';
-import Toast from '../../../components/Toast';
 import {SignedInScreenProps} from '../../../navigators/types';
+import {BGColors} from '../../../Config';
 
-export const MessageWrapper = styled.View`
-  margin-bottom: 0px;
+const RowWrapper = styled.View`
+  margin-bottom: 30px;
 `;
 
 const DateText = styled.Text`
@@ -29,11 +21,26 @@ const DateText = styled.Text`
   padding: 15px;
 `;
 
+type MessageType = {
+  date: string;
+  messages: {
+    commentsCount: number;
+    emotion: keyof typeof BGColors;
+    id: number;
+    isKept: boolean;
+    isMetooed: boolean;
+    linkTo: string;
+    metoosCount: number;
+    payload: string;
+    receiveDate: string;
+  }[];
+};
+
 export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -42,15 +49,11 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
     setQueryEnable(true);
   };
 
-  const {
-    data,
-    // isLoading,
-    refetch: refetchMessages,
-  } = useQuery(
+  const {refetch: refetchMessages} = useQuery(
     ['findFamilyMessages', {prev}],
     () => findFamilyMessagesApi({prev}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: MessageType[]}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -71,8 +74,6 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
               messageConcat,
               ...data.slice(1),
             ]);
-
-            // console.log(messages.map((message) => message.receiveAt));
           } else {
             setMessages([...messages, ...data]);
           }
@@ -102,7 +103,7 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
     setRefreshing(false);
   };
 
-  const renderMessages = ({item: messageByDate}) => {
+  const renderMessages = ({item: messageByDate}: {item: MessageType}) => {
     const dateObj = new Date(messageByDate.date);
 
     const dateString =
@@ -113,10 +114,7 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
           }월 ${dateObj.getDate()}일`;
 
     return (
-      <View
-        style={{
-          marginBottom: 30,
-        }}>
+      <RowWrapper>
         <DateText>{dateString}</DateText>
 
         <ScrollView
@@ -132,7 +130,7 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
             />
           ))}
         </ScrollView>
-      </View>
+      </RowWrapper>
     );
   };
 
@@ -162,7 +160,7 @@ export default function MessagePast({}: SignedInScreenProps<'MessagePast'>) {
         refreshing={refreshing}
         onRefresh={onRefresh}
         showsVerticalScrollIndicator={false}
-        onEndReached={({distanceFromEnd}) => {
+        onEndReached={({}) => {
           if (!isLast && !isLoading) {
             fetchMore();
           }

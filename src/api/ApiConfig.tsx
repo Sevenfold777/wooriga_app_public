@@ -1,8 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import authStore from '../stores/AuthStore';
-import {ACCESS_TOKEN, REFRESH_TOKEN} from '../Strings';
 
 export const SERVER_URL = 'https://prod-backend.wool2ga.com';
 export const INVITATION_URL = 'https://invite.wool2ga.com';
@@ -17,22 +15,25 @@ export const METHOD = {
 };
 
 /** axios skeleton */
-export async function _promise(method, url, body = {}) {
+export async function _promise(
+  method: {num: number; type: string},
+  url: string,
+  body = {},
+) {
   // get Token
   let accessToken = authStore.accessToken;
 
   if (accessToken) {
     // 단위: seconds (초)
-    const accessTokenExpires = (await jwtDecode(accessToken)).exp;
+    const accessTokenExpires = jwtDecode<{exp: number}>(accessToken).exp;
 
-    const now = parseInt(new Date().getTime() / 1000);
+    const now = Math.floor(new Date().getTime() / 1000);
     // 5분 이내 token expires
     if (now + 300 > accessTokenExpires) {
-      // if (now + 120 > accessTokenExpires && !authStore.isTokenRefreshing) {
       if (!authStore.isTokenRefreshing) {
         accessToken = await authStore.refreshAccessToken();
       } else {
-        // 10초 간 기다림 - 10초 지나면 request drop --> avoid 401
+        // 10초 간 기다림 - 10초 지나면 request drop --> avoid redundant refresh request
         let refreshed = false;
         for (let i = 0; i < 20; i++) {
           if (accessToken !== authStore.accessToken) {
