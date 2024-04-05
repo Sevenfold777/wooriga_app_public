@@ -52,7 +52,13 @@ export function findPhotoCommentsApi({
   return _promise(METHOD.GET, `photo/comments/${id}?prev=${prev}`);
 }
 
-export function commentPhotoApi({id, payload}: {id: number; payload: string}) {
+export function commentPhotoApi({
+  id,
+  payload,
+}: {
+  id: number;
+  payload: {payload: string};
+}) {
   return _promise(METHOD.POST, `photo/comments/${id}`, payload);
 }
 
@@ -68,14 +74,6 @@ export function editPhotoCommentApi({
   payload: string;
 }) {
   return _promise(METHOD.PATCH, `photo/comments/${id}`, payload);
-}
-
-export function likePhotoCommentApi(id: number) {
-  return _promise(METHOD.POST, `photo/comments/${id}/like`);
-}
-
-export function unlikePhotoCommentApi(id: number) {
-  return _promise(METHOD.DELETE, `photo/comments/${id}/unlike`);
 }
 
 export function findPhotoLikes(id: number) {

@@ -35,10 +35,9 @@ const InquiryPayload = styled.Text`
 `;
 
 export default function UserInquiry({
-  navigation,
   route: {params},
 }: SignedInScreenProps<'UserInquiry'>) {
-  const inquiry = params?.inquiry;
+  const inquiry = params.inquiry;
 
   return (
     <ScreenLayout>
@@ -50,7 +49,7 @@ export default function UserInquiry({
           <InquiryPayload>{inquiry.payload}</InquiryPayload>
         </InquiryContainer>
         <TitleContainer>
-          <TitleText>{`A. 답변`}</TitleText>
+          <TitleText>{'A. 답변'}</TitleText>
         </TitleContainer>
         <InquiryContainer>
           <InquiryPayload>{inquiry.reply}</InquiryPayload>

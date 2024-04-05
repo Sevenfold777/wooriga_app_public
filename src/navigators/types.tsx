@@ -5,6 +5,7 @@ import {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
+import {Asset} from 'expo-media-library';
 
 /* 1. Signed In Nav (Stack) */
 export type SignedInParams = {
@@ -13,10 +14,24 @@ export type SignedInParams = {
   MessageFamily: {messageId: number};
   MessagePast: undefined;
 
-  PhotoSelect: undefined;
-  PhotoUpload: undefined;
-  Photo: {id: number};
-  PhotoComments: {id: number};
+  PhotoSelect: {isRecommend: boolean} | undefined;
+  PhotoUpload: {chosenPhotos: Asset[]; isRecommend?: boolean};
+  Photo: {photoId: number};
+  PhotoComments: {
+    photo: {
+      author: {
+        id: number;
+        userName: string;
+      };
+      commentsCount: number;
+      familyId: number;
+      id: number;
+      isLiked: boolean;
+      likesCount: number;
+      payload: string;
+      theme: string;
+    };
+  };
 
   ChangeNickname: undefined;
   BannersPayload: undefined;
@@ -33,9 +48,11 @@ export type SignedInParams = {
   OperationPolicy: undefined;
   PrivacyPolicy: undefined;
 
-  UserInquirySend: undefined;
+  UserInquirySend:
+    | {title: string; payload: string; edit: boolean; id: number}
+    | undefined;
   UserInquiryList: undefined;
-  UserInquiry: undefined;
+  UserInquiry: {inquiry: {title: string; payload: string; reply: string}};
 
   LetterSend: undefined;
   LetterCompleted: undefined;
@@ -56,7 +73,14 @@ export type SignedInParams = {
   Settings: undefined;
   Infos: undefined;
   OpenSourceLicense: undefined;
-  OpenSourceLicensePayload: undefined;
+  OpenSourceLicensePayload: {
+    license: {
+      libraryName: string;
+      homepage: string;
+      repository: {url: string};
+      _licenseContent: string;
+    };
+  };
   PushNotifSettings: undefined;
   Quit: undefined;
 };

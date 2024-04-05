@@ -1,8 +1,7 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {
   ActivityIndicator,
-  DeviceEventEmitter,
   FlatList,
   StatusBar,
   useWindowDimensions,
@@ -32,16 +31,6 @@ const Container = styled.View`
   flex-direction: row;
 `;
 
-const NoInquiryContainer = styled.View`
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-`;
-
-const NoInquiryText = styled.Text`
-  font-family: 'nanum-regular';
-`;
-
 const SendInquiryBtn = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
@@ -69,10 +58,6 @@ const InquiryContainer = styled.TouchableOpacity`
   margin: 2px 5px;
 `;
 
-const Wrapper = styled.View`
-  flex-direction: row;
-`;
-
 const DateText = styled.Text`
   padding: 0px 5px;
   font-family: 'nanum-bold';
@@ -98,8 +83,18 @@ const StatusText = styled.Text`
   color: white;
   font-size: 12px;
   font-family: 'nanum-regular';
-  /* padding: 10px; */
 `;
+
+type InquiryType = {
+  id: number;
+  isReplied: boolean;
+  payload: string;
+  reply: string;
+  replyDate: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function UserInquiryList({
   navigation,
@@ -109,7 +104,7 @@ export default function UserInquiryList({
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [inquiries, setInquiries] = useState([]);
+  const [inquiries, setInquiries] = useState<InquiryType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -120,25 +115,25 @@ export default function UserInquiryList({
 
   /** react-query */
   // 1. get Inquirys sent
-  const {
-    data: myInquries,
-    // isLoading,
-    refetch: refetchInquiries,
-  } = useQuery(['findMyInquiries', {prev}], () => findInquiriesApi({prev}), {
-    onSuccess: ({data}) => {
-      if (data.length === 0) {
-        setIsLast(true);
-      } else {
-        setPrev(prev + 1);
-        setInquiries([...inquiries, ...data]);
-      }
+  const {refetch: refetchInquiries} = useQuery(
+    ['findMyInquiries', {prev}],
+    () => findInquiriesApi({prev}),
+    {
+      onSuccess: ({data}: {data: InquiryType[]}) => {
+        if (data.length === 0) {
+          setIsLast(true);
+        } else {
+          setPrev(prev + 1);
+          setInquiries([...inquiries, ...data]);
+        }
 
-      setQueryEnable(false);
-      setIsLoading(false);
+        setQueryEnable(false);
+        setIsLoading(false);
+      },
+
+      enabled: queryEnable,
     },
-
-    enabled: queryEnable,
-  });
+  );
 
   // 2. delete Inquirys
   const deleteInquiry = useMutation(deleteInquiryApi, {
@@ -174,36 +169,7 @@ export default function UserInquiryList({
     setRefreshing(false);
   };
 
-  /** 메세지 수정 전송 시, refetch */
-  /** 사용안함: 수정 후 바로 뒤 화면이 아니라, 마이페이지 메인으로 돌아감 */
-  // useEffect(() => {
-  //   const subscription = DeviceEventEmitter.addListener(
-  //     "EditCompleted",
-  //     ({ id, title, payload }) => {
-  //       const indexToChange = inquiries.findIndex(
-  //         (inquiry) => inquiry.id === id
-  //       );
-
-  //       const newInquiries = inquiries.map((inquiry, index) => {
-  //         if (index === indexToChange) {
-  //           const newInquiry = inquiry;
-  //           newInquiry.title = title;
-  //           newInquiry.payload = payload;
-
-  //           return newInquiry;
-  //         } else {
-  //           return inquiry;
-  //         }
-  //       });
-
-  //       setInquiries(newInquiries);
-  //     }
-  //   );
-
-  //   return () => subscription.remove();
-  // }, []);
-
-  const renderInquiries = ({item: inquiry}) => {
+  const renderInquiries = ({item: inquiry}: {item: InquiryType}) => {
     const dateObj = new Date(inquiry.createdAt);
     const now = new Date();
 
@@ -246,17 +212,14 @@ export default function UserInquiryList({
     );
   };
 
-  const memoized = useMemo(() => renderInquiries, [inquiries]);
-
   if (inquiries.length === 0) {
     if (isLast) {
       return (
         <>
           <NoContent payload={'작성한 문의 사항이 없습니다.'} />
           <SendInquiryBtn
-            onPress={() => navigation.navigate(ROUTE_NAME.USER_INQUIRY_SEND)}>
+            onPress={() => navigation.navigate('UserInquirySend')}>
             <SendInquiryText>{'문의 작성'}</SendInquiryText>
-            {/* <Ionicons name="paper-plane" size={26} color="white" /> */}
           </SendInquiryBtn>
         </>
       );
@@ -269,14 +232,11 @@ export default function UserInquiryList({
     }
   }
 
-  // console.log(inquiries.length);
-
   return (
     <ScreenLayout>
       <FlatList
-        // data={myInquirys?.data}
         data={inquiries}
-        renderItem={memoized}
+        renderItem={renderInquiries}
         refreshing={refreshing}
         onRefresh={onRefresh}
         showsVerticalScrollIndicator={false}
@@ -295,10 +255,8 @@ export default function UserInquiryList({
         </ActivityIndicatorWrapper>
       )}
 
-      <SendInquiryBtn
-        onPress={() => navigation.navigate(ROUTE_NAME.USER_INQUIRY_SEND)}>
+      <SendInquiryBtn onPress={() => navigation.navigate('UserInquirySend')}>
         <SendInquiryText>{'문의 작성'}</SendInquiryText>
-        {/* <Ionicons name="paper-plane" size={26} color="white" /> */}
       </SendInquiryBtn>
 
       <Modal
@@ -326,13 +284,14 @@ export default function UserInquiryList({
           <DetailModalAction
             onPress={() => {
               setDetailModal(false);
-              navigation.navigate(ROUTE_NAME.USER_INQUIRY_SEND, {
+              navigation.navigate('UserInquirySend', {
                 title: detailTarget?.title,
                 payload: detailTarget?.payload,
                 edit: true,
                 id: detailTarget.id,
               });
             }}
+            // eslint-disable-next-line react-native/no-inline-styles
             style={{
               borderBottomWidth: 0.2,
               borderBottomColor: Colors.borderLight,

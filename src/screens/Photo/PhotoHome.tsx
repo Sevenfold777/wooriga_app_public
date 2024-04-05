@@ -1,33 +1,26 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
-  DeviceEventEmitter,
   FlatList,
+  StyleSheet,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
-import {findMyPhotosApi, findPhotosFamilyApi} from '../../api/PhotosApi';
+import {findPhotosFamilyApi} from '../../api/PhotosApi';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
 } from '../../components/ScreenLayout';
 import mutationStore from '../../stores/MutationStore';
-import {Ionicons} from '@expo/vector-icons';
 import familyStore from '../../stores/FamilyStore';
 import FastImage from 'react-native-fast-image';
 import authStore from '../../stores/AuthStore';
 import PhotoThemeRecommend from '../../components/PhotoThemeRecommed';
-import NoContent, {
-  NoContentContainer,
-  NoContentText,
-} from '../../components/NoContent';
-import photoStore from '../../stores/PhotoStore';
-import Toast from '../../components/Toast';
-import {ROUTE_NAME} from '../../Strings';
+import {NoContentText} from '../../components/NoContent';
 import {Colors} from '../../Config';
-import {MainTabParams, MainTabScreenProps} from '../../navigators/types';
+import {MainTabScreenProps} from '../../navigators/types';
 
 const Container = styled.View`
   flex: 1;
@@ -50,20 +43,12 @@ const PhotoTheme = styled.Text`
   font-size: 15px;
   font-weight: 500;
   font-family: 'nanum-bold';
-  //padding-bottom: 5px;
 `;
 
 const PhotoAuthor = styled.Text`
   padding: 3px 0px 5px 0px;
   font-family: 'nanum-regular';
   text-align: right;
-  /* padding: 5px 10px; */
-`;
-
-const PhotoThumbnail = styled.Image`
-  width: 100%;
-  aspect-ratio: ${3 / 4};
-  border-radius: 10px;
 `;
 
 const PhotoFilesCnt = styled.View`
@@ -84,9 +69,30 @@ const CountText = styled.Text`
   color: white;
 `;
 
+type PhotoType = {
+  author: {
+    id: number;
+    userName: string;
+  };
+  familyId: number;
+  files: [
+    {
+      id: number;
+      width: number;
+      height: number;
+      url: string;
+      createdAt: string;
+      updatedAt: string;
+    },
+  ];
+  filesCount: number;
+  id: number;
+  theme: string;
+  payload: string;
+};
+
 export default function PhotoHome({
   navigation,
-  route: {params, name, path},
 }: MainTabScreenProps<'PhotoHome'>) {
   // redering function for Flatlist
   const {width} = useWindowDimensions();
@@ -95,7 +101,7 @@ export default function PhotoHome({
   // for Comments pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState<PhotoType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -104,46 +110,36 @@ export default function PhotoHome({
     setQueryEnable(true);
   };
 
-  const {
-    data,
-    refetch,
-    isLoading: photosIsLoading,
-  } = useQuery(['FamilyPhotos', prev], () => findPhotosFamilyApi(prev), {
-    onSuccess: ({data}) => {
-      if (data.length === 0) {
-        setIsLast(true);
-        // Toast({ message: "모든 사진을 찾았습니다." });
-      } else {
-        setPrev(prev + 1);
-        setPhotos([...photos, ...data]);
-      }
+  const {refetch} = useQuery(
+    ['FamilyPhotos', prev],
+    () => findPhotosFamilyApi(prev),
+    {
+      onSuccess: ({data}: {data: PhotoType[]}) => {
+        if (data.length === 0) {
+          setIsLast(true);
+        } else {
+          setPrev(prev + 1);
+          setPhotos([...photos, ...data]);
+        }
 
-      setQueryEnable(false);
-      setIsLoading(false);
+        setQueryEnable(false);
+        setIsLoading(false);
+      },
+      enabled: queryEnable,
     },
-    enabled: queryEnable,
-  });
+  );
 
   // console.log(photos.map((photo) => photo.filesCount));
 
-  const renderPhotos = ({item: photo}) => (
+  const renderPhotos = ({item: photo}: {item: PhotoType}) => (
     <TouchableWithoutFeedback
       onPress={() => {
-        navigation.navigate(ROUTE_NAME.PHOTO, {
+        navigation.push('Photo', {
           photoId: photo.id,
         });
       }}>
       <PhotoContainer style={{width: photoWidth}}>
-        <FastImage
-          source={{uri: photo.files[0].url}}
-          style={{
-            width: '100%',
-            aspectRatio: 3 / 4,
-            borderRadius: 10,
-            borderColor: Colors.borderLight,
-            borderWidth: 1,
-          }}
-        />
+        <FastImage source={{uri: photo.files[0].url}} style={styles.photo} />
 
         <Bottom>
           <PhotoTheme numberOfLines={1}>{photo.theme}</PhotoTheme>
@@ -181,7 +177,6 @@ export default function PhotoHome({
   /** refetch when navigated with mutation */
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      //console.log(mutationStore.isMutated);
       if (mutationStore.isMutated) {
         setRefreshing(true);
 
@@ -201,8 +196,6 @@ export default function PhotoHome({
 
     return unsubscribe;
   }, [navigation]);
-
-  const memoized = useMemo(() => renderPhotos, [photos]);
 
   const [isRecommend, setRecommend] = useState(true);
 
@@ -237,7 +230,7 @@ export default function PhotoHome({
       <Container>
         <FlatList
           data={photos}
-          renderItem={memoized}
+          renderItem={renderPhotos}
           numColumns={2}
           onRefresh={refresh}
           refreshing={isRefreshing}
@@ -260,3 +253,13 @@ export default function PhotoHome({
     </ScreenLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  photo: {
+    width: '100%',
+    aspectRatio: 3 / 4,
+    borderRadius: 10,
+    borderColor: Colors.borderLight,
+    borderWidth: 1,
+  },
+});

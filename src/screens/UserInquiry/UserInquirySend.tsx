@@ -3,7 +3,6 @@ import React, {useEffect, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {
   ActivityIndicator,
-  DeviceEventEmitter,
   Keyboard,
   TouchableWithoutFeedback,
   View,
@@ -14,7 +13,6 @@ import Completed from '../../components/Completed';
 import DismissKeyboard from '../../components/DismissKeyboard';
 import ScreenLayout from '../../components/ScreenLayout';
 import {Colors} from '../../Config';
-import {ROUTE_NAME} from '../../Strings';
 import {SignedInScreenProps} from '../../navigators/types';
 
 const Wrapper = styled.View`
@@ -38,7 +36,6 @@ const TagText = styled.Text`
 
 const TitleContainer = styled.View`
   margin: 0px 5px;
-  /* margin-bottom: 30px; */
 `;
 
 const TitleInput = styled.TextInput`
@@ -76,7 +73,6 @@ const SendBtn = styled.TouchableOpacity`
 
 const SendText = styled.Text`
   font-size: 16px;
-  /* color: #333333; */
   font-family: 'nanum-bold';
 `;
 
@@ -99,23 +95,14 @@ export default function UserInquirySend({
   const sendInquiry = useMutation(
     params?.edit ? editInquiryApi : createInquiryApi,
     {
-      onSuccess: data => {
-        // const body = JSON.parse(data.config.data);
-
+      onSuccess: () => {
         reset();
         setSent(true);
-
-        // params?.edit &&
-        //   DeviceEventEmitter.emit("EditCompleted", {
-        //     id: params?.id,
-        //     title: body?.title,
-        //     payload: body?.payload,
-        //   });
       },
     },
   );
 
-  const onValid = ({title, payload}) => {
+  const onValid = ({title, payload}: {title: string; payload: string}) => {
     sendInquiry.mutate({
       ...(params?.edit && {id: params?.id}),
       title,
@@ -129,7 +116,6 @@ export default function UserInquirySend({
         style={{
           width: '90%',
           height: '100%',
-          // backgroundColor: "red",
         }}
       />
     </TouchableWithoutFeedback>
@@ -144,7 +130,7 @@ export default function UserInquirySend({
       <Completed
         mainText="문의 사항이 접수 완료되었습니다."
         subText="운영진의 확인 후 답변드리겠습니다. 감사합니다."
-        toBack={() => navigation.navigate(ROUTE_NAME.MAIN_TAB_NAV)}
+        toBack={() => navigation.navigate('MainTabNav', {screen: 'MyPageNav'})}
       />
     );
   }
@@ -166,7 +152,7 @@ export default function UserInquirySend({
                     value={value}
                     onChangeText={onChange}
                     placeholder="제목을 입력해주세요."
-                    autoCapitlaize="none"
+                    autoCapitalize="none"
                   />
                 )}
               />
@@ -186,7 +172,7 @@ export default function UserInquirySend({
                     value={value}
                     onChangeText={onChange}
                     placeholder="서비스에 대한 문의사항을 입력해주세요."
-                    autoCapitlaize="none"
+                    autoCapitalize="none"
                     multiline={true}
                     textAlignVertical="top"
                   />

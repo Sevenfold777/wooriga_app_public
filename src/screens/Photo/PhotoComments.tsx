@@ -12,8 +12,6 @@ import {
   commentPhotoApi,
   deletePhotoCommentApi,
   findPhotoCommentsApi,
-  likePhotoCommentApi,
-  unlikePhotoCommentApi,
 } from '../../api/PhotosApi';
 import Comment, {
   MoreCommentsContainer,
@@ -21,11 +19,8 @@ import Comment, {
 } from '../../components/Comment';
 import DetailModal from '../../components/DetailModal';
 import authStore from '../../stores/AuthStore';
-import Modal from 'react-native-modal';
 import InputLayout from '../../components/InputLayout';
 import styled from 'styled-components/native';
-import Toast from '../../components/Toast';
-import {ReportTarget} from '../../api/ReportApi';
 import familyStore from '../../stores/FamilyStore';
 import {Colors} from '../../Config';
 import {SignedInScreenProps} from '../../navigators/types';
@@ -46,23 +41,39 @@ const CaptionContainer = styled.View`
   padding: 0px 20px;
 `;
 const Caption = styled.Text`
-  /* padding-left: 10px; */
   font-family: 'nanum-regular';
   line-height: 18px;
 `;
 
+const PhotoBodyContainer = styled.View`
+  border-bottom-color: ${Colors.borderDark};
+  border-bottom-width: 0.3px;
+  padding: 0px 10px 20px 10px;
+  margin-bottom: 10px;
+`;
+
+type CommentType = {
+  author: {
+    id: number;
+    userName: string;
+  };
+  id: number;
+  payload: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export default function PhotoComments({
-  navigation,
   route: {params},
 }: SignedInScreenProps<'PhotoComments'>) {
-  const photo = params?.photo;
-  //   console.log(photo);
-  const [commentsCnt, setCommentsCnt] = useState(params?.photo.commentsCount);
+  const photo = params.photo;
+
+  const [commentsCnt, setCommentsCnt] = useState(params.photo.commentsCount);
 
   // for Comments pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -72,22 +83,18 @@ export default function PhotoComments({
   };
 
   /** react-hook-form: 댓글 입력 */
-  const {register, handleSubmit, watch, setValue, setFocus} = useForm();
+  const {register, handleSubmit, watch, setValue} = useForm();
 
   useEffect(() => {
     register('comment', {required: true});
   }, [register]);
 
   // 2. 댓글 보기
-  const {
-    data,
-    isLoading: commentsIsLoading,
-    refetch: refetchComment,
-  } = useQuery(
+  const {refetch: refetchComment} = useQuery(
     ['Comments', photo.id, prev],
     () => findPhotoCommentsApi({id: photo.id, prev}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: CommentType[]}) => {
         if (data.length < 20) {
           setIsLast(true);
         } else {
@@ -112,9 +119,8 @@ export default function PhotoComments({
 
   // 3. 댓글 달기
   const sendComment = useMutation(commentPhotoApi, {
-    onSuccess: async data => {
+    onSuccess: async () => {
       setCommentsCnt(commentsCnt + 1);
-      setRefreshing(true);
 
       setComments([]);
       setPrev(0);
@@ -123,22 +129,21 @@ export default function PhotoComments({
       setIsLoading(true);
 
       await refetchComment();
-
-      setRefreshing(false);
     },
   });
 
   /** 댓긋 우측 더보기: open Modal */
   const [isCommentModal, setCommentModal] = useState(false);
   const [isConfirmModal, setConfirmModal] = useState(false);
-  const [commentModalTarget, setCommentModalTarget] = useState();
+  const [commentModalTarget, setCommentModalTarget] = useState<{
+    id: number;
+    authorId: number;
+  }>();
 
   // 4-2. Comment Detail Modal: Delete Comment
   const deleteComment = useMutation(deletePhotoCommentApi, {
     onSuccess: async () => {
       setCommentsCnt(commentsCnt - 1);
-
-      setRefreshing(true);
 
       setComments([]);
       setPrev(0);
@@ -147,51 +152,26 @@ export default function PhotoComments({
       setIsLoading(true);
 
       await refetchComment();
-
-      setRefreshing(false);
     },
   });
 
-  // 4-3. Like Comment
-  const likeComment = useMutation(likePhotoCommentApi, {
-    onSuccess: async () => {
-      await refetchComment();
-    },
-  });
-
-  // 4-4. unlike Comment
-  const unlikeComment = useMutation(unlikePhotoCommentApi, {
-    onSuccess: async () => {
-      await refetchComment();
-    },
-  });
-
-  /** function: toggle like */
-  const toggleLike = (id, isLiked) =>
-    isLiked ? unlikeComment.mutate(id) : likeComment.mutate(id);
   /** onValid */
-  const onValid = async data => {
-    sendComment.mutate({id: photo.id, payload: {payload: data.comment}});
+  const onValid = async ({comment}: {comment: string}) => {
+    sendComment.mutate({id: photo.id, payload: {payload: comment}});
     // 키보드 내리고 input 값 지우기
     setValue('comment', '');
     Keyboard.dismiss();
   };
 
   /** for comment Flatlist */
-  const renderComments = ({item: comment}) => (
+  const renderComments = ({item: comment}: {item: CommentType}) => (
     <Comment
-      id={comment.id}
       userId={comment.author.id}
       userName={
         familyStore.members[comment.author.id] || comment.author.userName
       }
       timeWritten={comment.createdAt}
       payload={comment.payload}
-      likes={comment.likes}
-      setCommentModal={setCommentModal}
-      setDetailTarget={setCommentModalTarget}
-      // toggleLike={toggleLike}
-      profileImage={comment.author.profileImage}
       onLongPress={() => {
         setCommentModal(true);
         setCommentModalTarget({
@@ -202,15 +182,6 @@ export default function PhotoComments({
       isDetail={comment.author.id === authStore.userId}
     />
   );
-
-  // refetch commments + refresh flatlist
-  const [isRefreshing, setRefreshing] = useState(false);
-
-  const refresh = async () => {
-    setRefreshing(true);
-    await refetchComment();
-    setRefreshing(false);
-  };
 
   return (
     <InputLayout
@@ -225,23 +196,17 @@ export default function PhotoComments({
         renderItem={renderComments}
         inverted
         showsVerticalScrollIndicator={false}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ListFooterComponent={() => (
           <View>
-            <View
-              style={{
-                borderBottomColor: Colors.borderDark,
-                borderBottomWidth: 0.3,
-                paddingBottom: 20,
-                paddingHorizontal: 10,
-                marginBottom: 10,
-              }}>
+            <PhotoBodyContainer>
               <TitleContainer>
                 <Title>{photo.theme}</Title>
               </TitleContainer>
               <CaptionContainer>
                 <Caption>{photo.payload}</Caption>
               </CaptionContainer>
-            </View>
+            </PhotoBodyContainer>
             {!isLast && (
               <MoreCommentsContainer
                 onPress={() => {
@@ -262,7 +227,6 @@ export default function PhotoComments({
       {/** Modal for Comment Detail */}
       {commentModalTarget?.authorId === authStore.userId && (
         <DetailModal
-          targetId={commentModalTarget?.id}
           isDetailModal={isCommentModal}
           isConfirmModal={isConfirmModal}
           setDetailModal={setCommentModal}

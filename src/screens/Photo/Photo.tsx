@@ -1,36 +1,24 @@
+/* eslint-disable react-native/no-inline-styles */
 import {useMutation, useQuery} from '@tanstack/react-query';
-import React, {createRef, useEffect, useRef, useState} from 'react';
-import {useForm} from 'react-hook-form';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
-  Animated,
   DeviceEventEmitter,
-  Image,
   Platform,
-  // Modal,
   ScrollView,
   StatusBar,
-  Text,
-  ToastAndroid,
   TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
-import {FlatList, Keyboard} from 'react-native';
 import styled from 'styled-components/native';
 import {
-  commentPhotoApi,
   deletePhotoApi,
   deletePhotoCommentApi,
-  editPhotoCommentApi,
   findPhotoApi,
-  findPhotoCommentsApi,
-  findPhotoLikes,
   likePhotoApi,
-  likePhotoCommentApi,
   unlikePhotoApi,
-  unlikePhotoCommentApi,
 } from '../../api/PhotosApi';
 import Comment, {
   MoreCommentsContainer,
@@ -40,7 +28,7 @@ import ActionIcon from '../../components/message/ActionIcon';
 import {Ionicons} from '@expo/vector-icons';
 import mutationStore from '../../stores/MutationStore';
 import DetailModal from '../../components/DetailModal';
-import {Indicator, IndicatorWrapper} from '../../components/CarouselIndicator';
+import {IndicatorWrapper} from '../../components/CarouselIndicator';
 import authStore from '../../stores/AuthStore';
 import ScreenLayout from '../../components/ScreenLayout';
 import Modal from 'react-native-modal';
@@ -50,21 +38,13 @@ import {downloadImage} from '../../helper';
 import Toast from '../../components/Toast';
 import familyStore from '../../stores/FamilyStore';
 import PaginationDot from 'react-native-animated-pagination-dot';
-import {ReportTarget} from '../../api/ReportApi';
-import FastImage from 'react-native-fast-image';
-import {ROUTE_NAME} from '../../Strings';
+import FastImage, {ResizeMode} from 'react-native-fast-image';
 import {Colors} from '../../Config';
-import {SignedInParams, SignedInScreenProps} from '../../navigators/types';
+import {SignedInScreenProps} from '../../navigators/types';
 
 const PhotoContainer = styled.View`
   border-bottom-width: 0.3px;
   border-bottom-color: ${Colors.borderDark};
-`;
-
-const PhotoImage = styled.Image`
-  justify-content: center;
-  align-items: center;
-  background-color: ${Colors.borderLight};
 `;
 
 const TitleContainer = styled.View`
@@ -83,7 +63,6 @@ const CaptionContainer = styled.View`
   padding: 0px 14px;
 `;
 const Caption = styled.Text`
-  /* padding-left: 10px; */
   font-family: 'nanum-regular';
   line-height: 18px;
 `;
@@ -124,6 +103,42 @@ const ModalBtn = styled.TouchableOpacity`
   flex-direction: row;
 `;
 
+type PhotoFileType = {
+  url: string;
+  width: number;
+  height: number;
+  props: {resizeMode: ResizeMode};
+};
+
+type PhotoType = {
+  author: {
+    id: number;
+    userName: string;
+  };
+  commentsCount: number;
+  commentsPreview: {
+    id: number;
+    author: {id: number; userName: string};
+    payload: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  familyId: number;
+  files: {
+    id: number;
+    url: string;
+    width: number;
+    height: number;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  id: number;
+  isLiked: false;
+  likesCount: number;
+  payload: string;
+  theme: string;
+};
+
 export function Photo({
   navigation,
   route: {params},
@@ -134,11 +149,15 @@ export function Photo({
 
   /** react-query */
   // 1. 사진 확인: route param으로 받아오기로 함
-  const photoId = params?.photoId;
-  const [photo, setPhoto] = useState();
-  const [images, setImages] = useState();
+  const photoId = params.photoId;
+  const [photo, setPhoto] = useState<PhotoType>();
+  const [images, setImages] = useState<PhotoFileType[]>();
 
-  const {data, isLoading} = useQuery(
+  const [like, setLike] = useState<boolean>(false);
+  const [commentsCnt, setCommentsCnt] = useState<number>(0);
+  const [likesCnt, setlikesCnt] = useState<number>(0);
+
+  const {isLoading} = useQuery(
     ['findPhoto', photoId],
     () => findPhotoApi(photoId),
     {
@@ -146,7 +165,7 @@ export function Photo({
         Toast({message: '게시물이 존재하지 않습니다'});
         navigation.goBack();
       },
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: PhotoType}) => {
         if (!data) {
           Toast({message: '게시물이 존재하지 않습니다'});
           navigation.goBack();
@@ -160,7 +179,7 @@ export function Photo({
         setCommentsCnt(data.commentsCount);
         setlikesCnt(data.likesCount);
 
-        const photoFiles = data.files.map(photoImage => {
+        const photoFiles: PhotoFileType[] = data.files.map(photoImage => {
           return {
             url: photoImage.url,
             // Optional, if you know the image size, you can set the optimization performance
@@ -175,7 +194,7 @@ export function Photo({
                   width: pageWidth,
                   height: (pageWidth * photoImage.height) / photoImage.width,
                 }),
-            // props to <Image />.
+            // props for <Image />.
             props: {
               resizeMode: 'contain',
             },
@@ -187,15 +206,11 @@ export function Photo({
     },
   );
 
-  const [like, setLike] = useState();
-  const [commentsCnt, setCommentsCnt] = useState();
-  const [likesCnt, setlikesCnt] = useState();
-
   // 4-1. Photo Detail Modal
   const deletePhoto = useMutation(deletePhotoApi, {
     onSuccess: () => {
       mutationStore.setStatus(true);
-      navigation.navigate(ROUTE_NAME.PHOTO_HOME, {isMutated: true});
+      navigation.navigate('MainTabNav', {screen: 'PhotoHome'});
     },
   });
 
@@ -206,13 +221,14 @@ export function Photo({
   const unlikePhoto = useMutation(unlikePhotoApi);
 
   /** function: toggle metoo */
-  const togglePhotoLike = (id, isLiked) => {
+  const togglePhotoLike = (id: number, isLiked: boolean) => {
     isLiked ? unlikePhoto.mutate(id) : likePhoto.mutate(id);
     DeviceEventEmitter.emit('isLiked', {id, isLiked: like});
   };
 
   // set headerTitle: photo Theme
   /** set header right Button */
+  // eslint-disable-next-line react/no-unstable-nested-components
   const HeaderRight = () => (
     <TouchableOpacity
       style={{paddingHorizontal: 15}}
@@ -224,22 +240,25 @@ export function Photo({
   );
 
   useEffect(() => {
-    if (photo?.author.id === authStore.userId)
+    if (photo?.author.id === authStore.userId) {
       navigation.setOptions({
         headerRight: HeaderRight,
       });
+    }
   }, [photo]);
 
   useEffect(() => {
     const commentsSubscription = DeviceEventEmitter.addListener(
       'commented',
-      ({id, commentsCount, commentsPreview}) => {
+      ({commentsCount, commentsPreview}) => {
         const newPhoto = photo;
-        newPhoto.commentsCount = commentsCount;
-        newPhoto.commentsPreview = commentsPreview;
+        if (newPhoto) {
+          newPhoto.commentsCount = commentsCount;
+          newPhoto.commentsPreview = commentsPreview;
 
-        setPhoto(newPhoto);
-        setCommentsCnt(commentsCount);
+          setPhoto(newPhoto);
+          setCommentsCnt(commentsCount);
+        }
       },
     );
 
@@ -252,41 +271,32 @@ export function Photo({
 
   /** 댓긋 우측 더보기: open Modal */
   const [isCommentModal, setCommentModal] = useState(false);
-  const [commentModalTarget, setCommentModalTarget] = useState();
+  const [commentModalTarget, setCommentModalTarget] = useState<{
+    id: number;
+    authorId: number;
+  }>();
 
   // 4-2. Comment Detail Modal: Delete Comment
   const deleteComment = useMutation(deletePhotoCommentApi, {
     onSuccess: () => {
-      // console.log(commentModalTarget.id);
-      const indexToChange = photo.commentsPreview.findIndex(
-        comment => comment.id === commentModalTarget.id,
+      const indexToChange = photo?.commentsPreview.findIndex(
+        comment => comment.id === commentModalTarget?.id,
       );
 
       const newPhoto = photo;
-      newPhoto.commentsPreview.splice(indexToChange, 1);
-      newPhoto.commentsCount = commentsCnt - 1;
+      if (newPhoto && indexToChange) {
+        newPhoto.commentsPreview.splice(indexToChange, 1);
+        newPhoto.commentsCount = commentsCnt - 1;
 
-      setPhoto(newPhoto);
-      setCommentsCnt(commentsCnt - 1);
+        setPhoto(newPhoto);
+        setCommentsCnt(commentsCnt - 1);
+      }
     },
   });
 
-  const commentActions =
-    authStore.userId === commentModalTarget?.authorId
-      ? [
-          {
-            name: '댓글 삭제',
-            confirmMessage: '정말 삭제하시겠습니까?',
-            func: deleteComment.mutate,
-          },
-        ]
-      : [];
-
   /** for image zoom */
   const [zoomModal, setZoomModal] = useState(false);
-  const [zoomIndex, setZoomIndex] = useState();
-
-  const [iosToast, setIosToast] = useState(false);
+  const [zoomIndex, setZoomIndex] = useState<number | undefined>();
 
   if (isLoading || !photo || !images) {
     return (
@@ -348,8 +358,6 @@ export function Photo({
                   togglePhotoLike(photo.id, like);
                   like ? setlikesCnt(likesCnt - 1) : setlikesCnt(likesCnt + 1);
                   setLike(!like);
-                  //   metoo ? setMetoosCnt(metoosCnt - 1) : setMetoosCnt(metoosCnt + 1);
-                  //   setMetoo(!metoo);
                 }}>
                 <ActionIcon
                   iconName="heart"
@@ -361,7 +369,7 @@ export function Photo({
 
               <Action
                 onPress={() => {
-                  navigation.navigate(ROUTE_NAME.PHOTO_COMMENTS, {photo});
+                  navigation.navigate('PhotoComments', {photo});
                 }}>
                 <ActionIcon iconName="chatbubble-ellipses" isClicked={false} />
                 <CommentNum>{commentsCnt}</CommentNum>
@@ -380,7 +388,7 @@ export function Photo({
                   maxPage={photo.files.length}
                 />
               </IndicatorWrapper>
-              <CommentNum></CommentNum>
+              <CommentNum />
             </View>
           </Actions>
 
@@ -402,7 +410,7 @@ export function Photo({
                 alignItems: 'flex-end',
               }}>
               <Caption>{`from. ${
-                familyStore.members[photo.author.id] || photo.author.userName
+                familyStore.members[photo?.author.id] || photo.author.userName
               }`}</Caption>
             </CaptionContainer>
           </View>
@@ -411,7 +419,6 @@ export function Photo({
           {photo.commentsPreview.map(comment => (
             <Comment
               key={comment.id}
-              id={comment.id}
               userId={comment.author.id}
               userName={
                 familyStore.members[comment.author.id] ||
@@ -419,11 +426,6 @@ export function Photo({
               }
               timeWritten={comment.createdAt}
               payload={comment.payload}
-              // likes={comment.likes}
-              setCommentModal={setCommentModal}
-              setDetailTarget={setCommentModalTarget}
-              // toggleLike={toggleLike}
-              profileImage={comment.author.profileImage}
               onLongPress={() => {
                 setCommentModal(true);
                 setCommentModalTarget({
@@ -436,7 +438,7 @@ export function Photo({
           ))}
           <MoreCommentsContainer
             onPress={() => {
-              navigation.navigate(ROUTE_NAME.PHOTO_COMMENTS, {photo});
+              navigation.navigate('PhotoComments', {photo});
             }}>
             <MoreCommentsText>댓글 더 보기 +</MoreCommentsText>
           </MoreCommentsContainer>
@@ -445,13 +447,12 @@ export function Photo({
 
       {/** Modal for Photo Detail */}
       <DetailModal
-        targetId={photo.id}
         isDetailModal={isDetailModal}
         isConfirmModal={isConfirmModal}
         setDetailModal={setDetailModal}
         setConfirmModal={setConfirmModal}
         actions={
-          authStore.userId === photo.author.id
+          authStore.userId === photo?.author?.id
             ? [
                 {
                   name: '사진 삭제',
@@ -460,24 +461,13 @@ export function Photo({
                   confirmMessage: '정말 삭제하시겠습니까?',
                 },
               ]
-            : [
-                {
-                  name: '신고하기',
-                  func: () =>
-                    navigation.navigate(ROUTE_NAME.REPORT, {
-                      targetType: ReportTarget.PHOTO,
-                      targetId: photo.id,
-                    }),
-                  confirmNeeded: false,
-                },
-              ]
+            : []
         }
       />
 
       {/** Modal for Comment Detail */}
       {commentModalTarget?.authorId === authStore.userId && (
         <DetailModal
-          targetId={commentModalTarget?.id}
           isDetailModal={isCommentModal}
           isConfirmModal={isConfirmModal}
           setDetailModal={setCommentModal}
@@ -496,11 +486,13 @@ export function Photo({
       <Modal
         isVisible={zoomModal}
         statusBarTranslucent={true}
-        deviceHeight={pageHeight + StatusBar.currentHeight}
+        deviceHeight={
+          pageHeight + (StatusBar.currentHeight ? StatusBar.currentHeight : 10)
+        }
         style={{margin: 0, backgroundColor: 'black'}}
         onBackButtonPress={() => {
           setZoomModal(false);
-          setZoomIndex();
+          setZoomIndex(undefined);
         }}
         backdropTransitionOutTiming={0}>
         <View
@@ -518,7 +510,7 @@ export function Photo({
             flipThreshold={30}
             onSwipeDown={() => {
               setZoomModal(false);
-              setZoomIndex();
+              setZoomIndex(undefined);
             }}
             saveToLocalByLongPress={false}
             footerContainerStyle={{
@@ -540,13 +532,12 @@ export function Photo({
                     }}>
                     저장
                   </Caption>
-                  {/* <Ionicons name="download-outline" color="white" size={20} /> */}
                 </ModalBtn>
 
                 <ModalBtn
                   onPress={() => {
                     setZoomModal(false);
-                    setZoomIndex();
+                    setZoomIndex(undefined);
                   }}>
                   <Caption
                     style={{

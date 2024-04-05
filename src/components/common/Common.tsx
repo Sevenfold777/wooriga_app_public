@@ -12,11 +12,8 @@ export const Title = styled.View`
 `;
 
 export const ActivityIndicatorWrapper = styled.View`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex: 1;
+  margin-bottom: 80px;
   justify-content: center;
   align-items: center;
 `;
