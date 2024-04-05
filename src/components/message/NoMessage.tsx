@@ -4,7 +4,7 @@ import {BGColors, BottomPhrases, Colors} from '../../Config';
 import assetStore from '../../stores/AssetStore';
 import {Indicator, IndicatorWrapper} from '../CarouselIndicator';
 import ActionIcon from './ActionIcon';
-import {RowContainer} from '../Common';
+import {RowContainer} from '../common/Common';
 import {Action, Actions, Emotion, EmotionWrapper} from './Message';
 
 const Container = styled.View``;

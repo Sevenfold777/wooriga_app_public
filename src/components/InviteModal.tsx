@@ -1,13 +1,14 @@
-import styled from "styled-components/native";
-import { Colors } from "../Config";
-import Modal from "react-native-modal";
-import { useWindowDimensions } from "react-native";
-import { StatusBar } from "react-native";
-import Clipboard from "@react-native-clipboard/clipboard";
-import { Ionicons } from "@expo/vector-icons";
-import { Image } from "react-native";
-import KakaoShareLink from "@utae/react-native-kakao-share-link";
-import propTypes from "prop-types";
+import React from 'react';
+import styled from 'styled-components/native';
+import {Colors} from '../Config';
+import Modal from 'react-native-modal';
+import {useWindowDimensions} from 'react-native';
+import {StatusBar} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {Ionicons} from '@expo/vector-icons';
+import {Image} from 'react-native';
+import KakaoShareLink from '@utae/react-native-kakao-share-link';
+import propTypes from 'prop-types';
 
 const InviteModalContainer = styled.View`
   border-top-left-radius: 10px;
@@ -29,7 +30,7 @@ const InviteModalAction = styled.TouchableOpacity`
 `;
 const InviteModalText = styled.Text`
   padding: 5px 10px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 const InviteIconWrapper = styled.View`
@@ -42,27 +43,33 @@ const InviteIconWrapper = styled.View`
   height: 60px;
 `;
 
+type Props = {
+  inviteModal: boolean;
+  setInviteModal: (isModal: boolean) => void;
+  inviteLink: string;
+};
+
 export default function InviteModal({
   inviteModal,
   setInviteModal,
   inviteLink,
-}) {
-  const { width: pageWidth, height: pageHeight } = useWindowDimensions();
+}: Props) {
+  const {height: pageHeight} = useWindowDimensions();
 
   const sendKakaoMessage = async () => {
     try {
       const response = await KakaoShareLink.sendFeed({
         content: {
-          title: "우리가",
+          title: '우리가',
           imageUrl:
-            "https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/invitation.jpeg",
-          link: { webUrl: inviteLink, mobileWebUrl: inviteLink },
-          description: "우리가족에 초대되었습니다.",
+            'https://wooriga-dev.s3.ap-northeast-2.amazonaws.com/emotions/invitation.jpeg',
+          link: {webUrl: inviteLink, mobileWebUrl: inviteLink},
+          description: '우리가족에 초대되었습니다.',
         },
         buttons: [
           {
-            title: "초대 확인하기",
-            link: { webUrl: inviteLink, mobileWebUrl: inviteLink },
+            title: '초대 확인하기',
+            link: {webUrl: inviteLink, mobileWebUrl: inviteLink},
           },
         ],
       });
@@ -78,22 +85,22 @@ export default function InviteModal({
       onBackButtonPress={() => setInviteModal(!inviteModal)}
       onBackdropPress={() => setInviteModal(!inviteModal)}
       onSwipeComplete={() => setInviteModal(!inviteModal)}
-      style={{ margin: 0, justifyContent: "flex-end" }}
+      style={{margin: 0, justifyContent: 'flex-end'}}
       animationIn="fadeInUp"
       animationOut="fadeOutDown"
       backdropTransitionOutTiming={0}
       statusBarTranslucent
-      deviceHeight={pageHeight + StatusBar.currentHeight}
-    >
+      deviceHeight={
+        pageHeight + (StatusBar.currentHeight ? StatusBar.currentHeight : 100)
+      }>
       <InviteModalContainer>
         <InviteModalAction
           onPress={() => {
             setInviteModal(!inviteModal);
             Clipboard.setString(inviteLink);
-          }}
-        >
+          }}>
           <InviteIconWrapper>
-            <Ionicons name="copy-outline" size={25} style={{ margin: 5 }} />
+            <Ionicons name="copy-outline" size={25} style={{margin: 5}} />
           </InviteIconWrapper>
 
           <InviteModalText>초대 링크 복사</InviteModalText>
@@ -102,13 +109,11 @@ export default function InviteModal({
           onPress={() => {
             setInviteModal(!inviteModal);
             sendKakaoMessage();
-          }}
-        >
+          }}>
           <InviteIconWrapper>
             <Image
-              source={require("../../assets/images/kakao.png")}
-              //   style={{ width: 22, height: 26 }}
-              style={{ width: 26, height: 22 }}
+              source={require('../../assets/images/kakao.png')}
+              style={{width: 26, height: 22}}
               resizeMode="contain"
             />
           </InviteIconWrapper>

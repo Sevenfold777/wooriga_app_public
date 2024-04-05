@@ -1,22 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
-import styled from "styled-components/native";
+import {useQuery} from '@tanstack/react-query';
+import React from 'react';
+import {ActivityIndicator, ScrollView, useWindowDimensions} from 'react-native';
+import styled from 'styled-components/native';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from "../../components/ScreenLayout";
-import Menu from "../../components/myPage/Menu";
-import { findMyEmotionTodayApi } from "../../api/DailyEmotionApi";
-import DailyEmotion from "../../components/DailyEmotion";
-import RNKakaoAdfit, { KakaoAdfit } from "../../components/RNKakaoAdfit";
-import { ROUTE_NAME } from "../../Strings";
-import { Colors } from "../../Config";
-import { findBannersBarApi } from "../../api/BannerApi";
-import BannerBar from "../../components/BannerBar";
+} from '../../components/common/ScreenLayout';
+import Menu from '../../components/myPage/Menu';
+import {findMyEmotionTodayApi} from '../../api/DailyEmotionApi';
+import DailyEmotion from '../../components/DailyEmotion';
+import RNKakaoAdfit, {KakaoAdfit} from '../../components/RNKakaoAdfit';
+import {ROUTE_NAME} from '../../Strings';
+import {Colors} from '../../Config';
+import {findBannersBarApi} from '../../api/BannerApi';
+import BannerBar from '../../components/BannerBar';
 
 const Container = styled.View``;
 export const ProfileContainer = styled.View`
@@ -33,7 +29,7 @@ export const ProfileImage = styled.Image`
 export const ProfileName = styled.Text`
   /* padding: 15px; */
   font-size: 18px;
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   margin-bottom: 20px;
 `;
 
@@ -45,7 +41,7 @@ const EditProfileBtn = styled.TouchableOpacity`
   padding: 15px;
   border-radius: 10px;
   margin: 10px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 const EditProfileText = styled.Text`
@@ -57,26 +53,26 @@ export const MenuContainer = styled.View`
   margin: 0px 0px;
 `;
 
-export default function MyPage({ navigation }) {
+export default function MyPage({navigation}) {
   const now = new Date().getTime();
 
   const {
     data: bannersBar,
     isLoading: bannersBarLoading,
     refetch: refetchBars,
-  } = useQuery(["BannersBar", ROUTE_NAME.MYPAGE_MY], () =>
-    findBannersBarApi({ screen: ROUTE_NAME.MYPAGE_MY })
+  } = useQuery(['BannersBar', ROUTE_NAME.MYPAGE_MY], () =>
+    findBannersBarApi({screen: ROUTE_NAME.MYPAGE_MY}),
   );
 
   // window dimensions
-  const { width: pageWidth } = useWindowDimensions();
+  const {width: pageWidth} = useWindowDimensions();
 
   // react-query: myProfile with Emotion
   const {
     data: me,
     refetch: refetchMe,
     isLoading: meIsLoading,
-  } = useQuery(["MeWithEmotion"], findMyEmotionTodayApi);
+  } = useQuery(['MeWithEmotion'], findMyEmotionTodayApi);
 
   if (bannersBarLoading || meIsLoading) {
     return (

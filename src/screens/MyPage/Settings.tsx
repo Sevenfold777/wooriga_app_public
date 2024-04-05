@@ -1,7 +1,7 @@
 import React from 'react';
 import {Alert, Text} from 'react-native';
 import Menu from '../../components/myPage/Menu';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import authStore from '../../stores/AuthStore';
 import {ROUTE_NAME} from '../../Strings';
 import {MenuContainer} from './MyPage';

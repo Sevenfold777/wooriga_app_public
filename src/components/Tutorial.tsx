@@ -1,10 +1,11 @@
-import { View, TouchableOpacity } from "react-native";
-import FastImage from "react-native-fast-image";
-import PagerView from "react-native-pager-view";
-import styled from "styled-components/native";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../Config";
-import { useRef } from "react";
+import React from 'react';
+import {View} from 'react-native';
+import FastImage from 'react-native-fast-image';
+import PagerView from 'react-native-pager-view';
+import styled from 'styled-components/native';
+import {Ionicons} from '@expo/vector-icons';
+import {useRef} from 'react';
+import propTypes from 'prop-types';
 
 const PageContainer = styled.View`
   position: absolute;
@@ -18,7 +19,7 @@ const PageContainer = styled.View`
 `;
 
 const PageText = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   color: white;
 `;
 
@@ -42,19 +43,19 @@ const PrevBtn = styled.TouchableOpacity`
   padding: 10px 3px;
 `;
 
-export default function Tutorial({ width }) {
-  const pagerViewRef = useRef();
+export default function Tutorial({width}: {width: number}) {
+  const pagerViewRef = useRef<PagerView>(null);
 
   const prefix =
-    "https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/intro/intro_";
+    'https://wooriga-prod.s3.ap-northeast-2.amazonaws.com/intro/intro_';
 
   const urls = [
-    "cover.png",
-    "message.png",
-    "emotion.png",
-    "photo.png",
-    "letter_send.png",
-    "time_capsule.png",
+    'cover.png',
+    'message.png',
+    'emotion.png',
+    'photo.png',
+    'letter_send.png',
+    'time_capsule.png',
     // "theme.png",
     // "letter_helper.png",
   ];
@@ -62,29 +63,23 @@ export default function Tutorial({ width }) {
   return (
     <PagerView
       initialPage={0}
-      style={{ width, aspectRatio: 1 }}
-      ref={pagerViewRef}
-    >
+      style={{width, aspectRatio: 1}}
+      ref={pagerViewRef}>
       {urls.map((url, index) => (
         <View key={index}>
-          <FastImage
-            source={{ uri: prefix + url }}
-            style={{ aspectRatio: 1 }}
-          />
+          <FastImage source={{uri: prefix + url}} style={{aspectRatio: 1}} />
           <PageContainer>
-            <PageText
-              style={{ fontFamily: "nanum-regular", color: "white" }}
-            >{`${index + 1} / ${urls.length}`}</PageText>
+            <PageText>{`${index + 1} / ${urls.length}`}</PageText>
           </PageContainer>
 
           {index !== urls.length - 1 && (
-            <NextBtn onPress={() => pagerViewRef?.current.setPage(index + 1)}>
+            <NextBtn onPress={() => pagerViewRef?.current?.setPage(index + 1)}>
               <Ionicons name="chevron-forward" size={40} />
             </NextBtn>
           )}
 
           {index !== 0 && (
-            <PrevBtn onPress={() => pagerViewRef?.current.setPage(index - 1)}>
+            <PrevBtn onPress={() => pagerViewRef?.current?.setPage(index - 1)}>
               <Ionicons name="chevron-back" size={40} />
             </PrevBtn>
           )}
@@ -93,3 +88,7 @@ export default function Tutorial({ width }) {
     </PagerView>
   );
 }
+
+Tutorial.propTypes = {
+  width: propTypes.number.isRequired,
+};

@@ -1,8 +1,5 @@
+import {EmotionType} from '../components/DailyEmotion';
 import {METHOD, _promise} from './ApiConfig';
-
-type EmotionType = {
-  type: string;
-};
 
 export function findMyEmotionTodayApi() {
   return _promise(METHOD.GET, 'emotions/today/my');
@@ -12,9 +9,9 @@ export function findFamEmotionsTodayApi() {
   return _promise(METHOD.GET, 'emotions/today/family');
 }
 
-export function createDailyEmotionApi(type: EmotionType) {
+export function createDailyEmotionApi({type}: {type: EmotionType}) {
   // type: {type: enum}
-  return _promise(METHOD.POST, 'emotions', type);
+  return _promise(METHOD.POST, 'emotions', {type});
 }
 
 export function editDailyEmotionApi({

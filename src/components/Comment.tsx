@@ -61,13 +61,16 @@ export const MoreCommentsContainer = styled.TouchableOpacity`
   padding: 20px 5px;
 `;
 
+export const MoreCommentsBtn = styled.View`
+  padding: 10px 20px;
+  border: 0.5px solid ${Colors.borderDark};
+  border-radius: 18px;
+`;
+
 export const MoreCommentsText = styled.Text`
   color: ${Colors.borderDark};
   font-size: 12px;
   font-family: 'nanum-regular';
-  border: 0.5px solid ${Colors.borderDark};
-  border-radius: 18px;
-  padding: 10px 20px;
   justify-content: center;
 `;
 

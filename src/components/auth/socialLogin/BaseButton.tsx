@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import PropTypes from 'prop-types';
 import {Colors} from '../../../Config';
 
-const LoginBtnContainer = styled.TouchableOpacity`
+const LoginBtnContainer = styled.TouchableOpacity<{bgColor: string}>`
   flex-direction: row;
   align-items: center;
   margin: 0px 24px;
@@ -31,12 +31,28 @@ const LoginBtnTextWrapper = styled.View`
   border-color: ${Colors.white};
 `;
 
-const LoginBtnText = styled.Text`
+const LoginBtnText = styled.Text<{textColor: string}>`
   padding: 0px 30px;
   font-size: 16px;
   color: ${props => props.textColor};
   font-family: 'nanum-bold';
 `;
+
+export type SignInResponse = {
+  ok: boolean;
+  accessToken: string;
+  refreshToken: string;
+  signUpRequired: boolean;
+  error: string;
+};
+
+type Props = {
+  bgColor: string;
+  onPress: () => void;
+  logoPath: number;
+  textColor: string;
+  textPayload: string;
+};
 
 export default function BaseButton({
   bgColor,
@@ -44,7 +60,7 @@ export default function BaseButton({
   logoPath,
   textColor,
   textPayload,
-}) {
+}: Props) {
   return (
     <LoginBtnContainer bgColor={bgColor} onPress={onPress}>
       <ImageWrapper>
@@ -62,4 +78,5 @@ BaseButton.propTypes = {
   onPress: PropTypes.func.isRequired,
   logoPath: PropTypes.number.isRequired,
   textPayload: PropTypes.string.isRequired,
+  textColor: PropTypes.string.isRequired,
 };

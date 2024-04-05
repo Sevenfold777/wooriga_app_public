@@ -1,21 +1,21 @@
-import React, { useState } from "react";
-import styled from "styled-components/native";
+import React, {useState} from 'react';
+import styled from 'styled-components/native';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from "../../components/ScreenLayout";
-import { Colors } from "../../Config";
-import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { quitServiceApi } from "../../api/AuthApi";
-import authStore from "../../stores/AuthStore";
+} from '../../components/common/ScreenLayout';
+import {Colors} from '../../Config';
+import {Ionicons} from '@expo/vector-icons';
+import {ActivityIndicator, Text, TouchableOpacity, View} from 'react-native';
+import {useMutation, useQuery} from '@tanstack/react-query';
+import {quitServiceApi} from '../../api/AuthApi';
+import authStore from '../../stores/AuthStore';
 
 const Container = styled.View`
   padding: 0px 15px;
 `;
 
 const TextBold = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
 
   padding: 5px;
 `;
@@ -23,7 +23,7 @@ const TextBold = styled.Text`
 const TextRegular = styled.Text`
   font-size: 12px;
   line-height: 14px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   padding: 5px 12px;
 `;
 
@@ -37,7 +37,7 @@ const Button = styled.TouchableOpacity`
 `;
 
 const BtnText = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   font-size: 16px;
   color: white;
 `;
@@ -56,7 +56,7 @@ const AgreeContainer = styled.View`
   justify-content: flex-end;
 `;
 
-export default function Quit({ navigation }) {
+export default function Quit({navigation}) {
   const [agree, setAgree] = useState(false);
 
   const quitService = useMutation(quitServiceApi, {
@@ -89,10 +89,10 @@ export default function Quit({ navigation }) {
   return (
     <ScreenLayout>
       <Container>
-        <TextBold style={{ fontSize: 16 }}>
+        <TextBold style={{fontSize: 16}}>
           우리가를 정말 탈퇴하시겠습니까?
         </TextBold>
-        <TextRegular style={{ marginLeft: 10, fontSize: 14 }}>
+        <TextRegular style={{marginLeft: 10, fontSize: 14}}>
           탈퇴 전, 아래의 내용을 확인해주세요
         </TextRegular>
 
@@ -101,14 +101,14 @@ export default function Quit({ navigation }) {
           <TextRegular>
             • 서비스 탈퇴 시 아래의 이용 기록을 확인할 수 없게 됩니다.
           </TextRegular>
-          <TextRegular>{"- 이용자가 작성한 편지"}</TextRegular>
-          <TextRegular>{"- 이용자가 보관한 이야기 / 편지"}</TextRegular>
-          <TextRegular>{"- 이용자가 선택한 감정 상태"}</TextRegular>
-          <TextRegular>{"- 이용자가 등록한 사진"}</TextRegular>
-          <TextRegular>{"- 이용자가 작성한 댓글"}</TextRegular>
-          <TextRegular>{"- 이용자가 접수한 1:1 문의 및 신고 내역"}</TextRegular>
+          <TextRegular>{'- 이용자가 작성한 편지'}</TextRegular>
+          <TextRegular>{'- 이용자가 보관한 이야기 / 편지'}</TextRegular>
+          <TextRegular>{'- 이용자가 선택한 감정 상태'}</TextRegular>
+          <TextRegular>{'- 이용자가 등록한 사진'}</TextRegular>
+          <TextRegular>{'- 이용자가 작성한 댓글'}</TextRegular>
+          <TextRegular>{'- 이용자가 접수한 1:1 문의 및 신고 내역'}</TextRegular>
 
-          <TextBold style={{ marginTop: 10 }}>
+          <TextBold style={{marginTop: 10}}>
             이용자가 수신 / 발신 했던 편지의 관리
           </TextBold>
           <TextRegular>
@@ -118,25 +118,25 @@ export default function Quit({ navigation }) {
             • 전송한 편지는 삭제 또는 수정이 불가합니다.
           </TextRegular>
 
-          <TextBold style={{ marginTop: 10 }}>회원탈퇴 후 정보의 삭제</TextBold>
+          <TextBold style={{marginTop: 10}}>회원탈퇴 후 정보의 삭제</TextBold>
           <TextRegular>
             • 유의사항에서 안내되는 이용기록은 '우리가 개인정보 처리방침'에
             의거하여 탈퇴 일로부터 3개월 뒤 삭제됩니다.
           </TextRegular>
         </CheckListContainer>
         <AgreeContainer>
-          <TextBold style={{ fontSize: 14 }}>(필수)</TextBold>
-          <Text style={{ fontFamily: "nanum-regular", marginRight: 10 }}>
+          <TextBold style={{fontSize: 14}}>(필수)</TextBold>
+          <Text style={{fontFamily: 'nanum-regular', marginRight: 10}}>
             위 내용을 확인하였습니다
           </Text>
           <TouchableOpacity onPress={() => setAgree(!agree)}>
             <Ionicons
-              name={agree ? "checkbox-outline" : "square-outline"}
+              name={agree ? 'checkbox-outline' : 'square-outline'}
               size={16}
             />
           </TouchableOpacity>
         </AgreeContainer>
-        <View style={{ flexDirection: "row" }}>
+        <View style={{flexDirection: 'row'}}>
           <Button
             style={{
               opacity: agree ? 1 : 0.5,
@@ -147,14 +147,12 @@ export default function Quit({ navigation }) {
               if (agree) {
                 quitService.mutate();
               }
-            }}
-          >
+            }}>
             <BtnText>탈퇴하기</BtnText>
           </Button>
           <Button
-            style={{ backgroundColor: Colors.main }}
-            onPress={() => navigation.goBack()}
-          >
+            style={{backgroundColor: Colors.main}}
+            onPress={() => navigation.goBack()}>
             <BtnText>돌아가기</BtnText>
           </Button>
         </View>

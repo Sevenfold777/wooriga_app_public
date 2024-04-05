@@ -11,7 +11,7 @@ import styled from 'styled-components/native';
 import {findMyPhotosApi} from '../../api/PhotosApi';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import mutationStore from '../../stores/MutationStore';
 import familyStore from '../../stores/FamilyStore';
 import FastImage from 'react-native-fast-image';

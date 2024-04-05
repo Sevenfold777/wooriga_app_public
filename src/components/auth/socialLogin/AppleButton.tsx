@@ -1,28 +1,27 @@
+import React from 'react';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import {useMutation} from '@tanstack/react-query';
-import RNRestart from 'react-native-restart';
 import {loginApi} from '../../../api/AuthApi';
 import {appleAuth} from '@invertase/react-native-apple-authentication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import authStore from '../../../stores/AuthStore';
-import {_promise} from '../../../api/ApiConfig';
-import familyStore from '../../../stores/FamilyStore';
-import {joinFamilyApi} from '../../../api/FamilyApi';
 import BaseButton from './BaseButton';
 import jwt_decode from 'jwt-decode';
 import PropTypes from 'prop-types';
-import {ROUTE_NAME} from '../../../Strings';
 import {Colors} from '../../../Config';
 import Toast from '../../Toast';
 
-export default function AppleButton({familyJoinToken}) {
+export default function AppleButton({
+  familyJoinToken,
+}: {
+  familyJoinToken: string;
+}) {
   const navigation = useNavigation();
 
   const loginWithToken = useMutation(loginApi);
 
   /** apple Login */
 
-  const loginApple = async props => {
+  const loginApple = async () => {
     const appleAuthRequestResponse = await appleAuth.performRequest({
       requestedOperation: appleAuth.Operation.LOGIN,
       requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
@@ -34,11 +33,17 @@ export default function AppleButton({familyJoinToken}) {
 
     if (creadentialState === appleAuth.State.AUTHORIZED) {
       // Authenticated
-      const {email, identityToken, nonce, fullName, authorizationCode} =
-        appleAuthRequestResponse;
+      const {email, identityToken, nonce, fullName} = appleAuthRequestResponse;
+
+      const familyName = fullName?.familyName || '';
+      const givenName = fullName?.givenName || '';
 
       // get Name
-      const userName = fullName?.familyName + fullName?.givenName;
+      const userName = familyName + givenName;
+
+      if (!identityToken) {
+        return;
+      }
 
       const decoded = await jwt_decode(identityToken);
 
@@ -51,7 +56,7 @@ export default function AppleButton({familyJoinToken}) {
             } = data;
 
             if (!ok && signUpRequired) {
-              navigation.navigate(ROUTE_NAME.SIGN_UP, {
+              navigation.navigate('SignUp', {
                 userName: userName || '',
                 email: email || decoded?.email,
                 ...(familyJoinToken && {familyId: familyJoinToken}),
@@ -67,21 +72,19 @@ export default function AppleButton({familyJoinToken}) {
               // 완료 후 navigation 전환 --> LoggedInNav
 
               if (familyJoinToken) {
-                if (
-                  navigation.getState().routes[0].name ===
-                  ROUTE_NAME.MAIN_TAB_NAV
-                )
+                if (navigation.getState()?.routes[0].name === 'MainTabNav') {
                   navigation.dispatch(
                     CommonActions.reset({
                       index: 0,
                       routes: [
                         {
-                          name: ROUTE_NAME.FAMILY_JOIN,
+                          name: 'FamilyJoin',
                           params: {id: familyJoinToken},
                         },
                       ],
                     }),
                   );
+                }
               }
             }
           },
@@ -94,7 +97,7 @@ export default function AppleButton({familyJoinToken}) {
     <BaseButton
       bgColor="#000000"
       logoPath={require('../../../../assets/images/apple.png')}
-      onPress={() => loginApple()}
+      onPress={loginApple}
       textPayload={'Apple로 로그인'}
       textColor={Colors.white}
     />

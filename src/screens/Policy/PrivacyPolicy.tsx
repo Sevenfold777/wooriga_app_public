@@ -1,6 +1,6 @@
 import React from 'react';
 import WebView from 'react-native-webview';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 
 export default function PrivacyPolicy() {
   return (

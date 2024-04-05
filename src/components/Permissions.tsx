@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components/native";
-import ScreenLayout from "./ScreenLayout";
-import { Ionicons } from "@expo/vector-icons";
-import {
-  requestMediaPermission,
-  requestNotificationPermission,
-} from "../helper";
+import React from 'react';
+import styled from 'styled-components/native';
+import {Ionicons} from '@expo/vector-icons';
+import {requestMediaPermission, requestNotificationPermission} from '../helper';
 import {
   useWindowDimensions,
   View,
   StatusBar,
   TouchableOpacity,
   Linking,
-} from "react-native";
-import Modal from "react-native-modal";
-import authStore from "../stores/AuthStore";
-import { observer } from "mobx-react-lite";
-import { Colors } from "../Config";
+} from 'react-native';
+import Modal from 'react-native-modal';
+import authStore from '../stores/AuthStore';
+import {observer} from 'mobx-react-lite';
+import {Colors} from '../Config';
 
 export const Container = styled.View`
   background-color: white;
@@ -30,13 +26,13 @@ export const HeaderContainer = styled.View`
 `;
 
 export const HeaderTitle = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   font-size: 18px;
   padding: 5px 0px;
 `;
 
 export const HeaderPayload = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   font-size: 16px;
   padding: 5px 10px;
 `;
@@ -49,7 +45,6 @@ export const PermissionListContainer = styled.View`
   padding: 10px;
   background-color: ${Colors.sub};
   border-radius: 10px;
-  /* margin: 0px 0px 20px 0px; */
 `;
 
 export const PermissionContainer = styled.View`
@@ -63,12 +58,12 @@ export const PermissionColumn = styled.View`
 
 export const PermissionTitle = styled.Text`
   font-size: 16px;
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   padding: 2px;
 `;
 
 export const PermissionPayload = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   padding: 2px 10px;
 `;
 
@@ -82,19 +77,19 @@ const PermissionBtn = styled.TouchableOpacity`
 `;
 
 const PermissionBtnText = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   font-size: 16px;
   color: white;
 `;
 
 const DetailText = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   color: ${Colors.borderDark};
   padding: 0px 5px;
 `;
 
 function Permissions() {
-  const { height: pageHeight } = useWindowDimensions();
+  const {height: pageHeight} = useWindowDimensions();
 
   const permissionRequest = async () => {
     // for Media Library (CameraRoll)
@@ -116,8 +111,11 @@ function Permissions() {
       animationOut="fadeOutDown"
       backdropTransitionOutTiming={0}
       statusBarTranslucent
-      deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-    >
+      deviceHeight={
+        pageHeight +
+        10 +
+        (StatusBar.currentHeight ? StatusBar.currentHeight : 100)
+      }>
       <Container>
         <HeaderContainer>
           <HeaderContainer>
@@ -131,11 +129,7 @@ function Permissions() {
         <Body>
           <PermissionListContainer>
             <PermissionContainer>
-              <Ionicons
-                name="images"
-                size={20}
-                style={{ paddingVertical: 2 }}
-              />
+              <Ionicons name="images" size={20} style={{paddingVertical: 2}} />
               <PermissionColumn>
                 <PermissionTitle>사진 및 동영상 (필수)</PermissionTitle>
                 <PermissionPayload>
@@ -149,7 +143,7 @@ function Permissions() {
               <Ionicons
                 name="notifications"
                 size={20}
-                style={{ paddingVertical: 2 }}
+                style={{paddingVertical: 2}}
               />
               <PermissionColumn>
                 <PermissionTitle>알림 (선택)</PermissionTitle>
@@ -164,24 +158,22 @@ function Permissions() {
             <PermissionBtnText>권한 허용</PermissionBtnText>
           </PermissionBtn>
           <TouchableOpacity
-            style={{ flexDirection: "row", paddingHorizontal: 10 }}
-            onPress={() => Linking.openSettings()}
-          >
+            style={{flexDirection: 'row', paddingHorizontal: 10}}
+            onPress={() => Linking.openSettings()}>
             <DetailText>*</DetailText>
             <DetailText>
-              {"수동 접근 권한 변경: 설정 > 우리가 > 권한"}
+              {'수동 접근 권한 변경: 설정 > 우리가 > 권한'}
             </DetailText>
           </TouchableOpacity>
           <View
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               paddingHorizontal: 10,
               marginVertical: 5,
-            }}
-          >
+            }}>
             <DetailText>*</DetailText>
             <DetailText>
-              {"필수 권한에 동의하지 않으면 서비스를 이용하실 수 없습니다"}
+              {'필수 권한에 동의하지 않으면 서비스를 이용하실 수 없습니다'}
             </DetailText>
           </View>
         </Body>

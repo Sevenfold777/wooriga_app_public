@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {BGColors, Colors} from '../../Config';
 import {ROUTE_NAME} from '../../Strings';
 import {Ionicons} from '@expo/vector-icons';

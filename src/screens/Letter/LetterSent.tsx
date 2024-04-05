@@ -21,7 +21,7 @@ import {
 } from '../../components/letter/Letter';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import {BGColors, Colors} from '../../Config';
 import assetStore from '../../stores/AssetStore';
 import {Ionicons} from '@expo/vector-icons';

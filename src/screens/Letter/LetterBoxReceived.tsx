@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Letter, LetterBox } from "../../components/letter/LetterBox";
-import ScreenLayout from "../../components/ScreenLayout";
-import { DeviceEventEmitter, FlatList, View } from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import { ActivityIndicator } from "react-native";
-import { findLettersReceivedApi } from "../../api/LetterApi";
-import NoContent from "../../components/NoContent";
-import { NoContentContainer } from "../../components/NoContent";
-import { NoContentText } from "../../components/NoContent";
-import familyStore from "../../stores/FamilyStore";
+import React, {useEffect, useState} from 'react';
+import {Letter, LetterBox} from '../../components/letter/LetterBox';
+import ScreenLayout from '../../components/common/ScreenLayout';
+import {DeviceEventEmitter, FlatList, View} from 'react-native';
+import {useQuery} from '@tanstack/react-query';
+import {ActivityIndicator} from 'react-native';
+import {findLettersReceivedApi} from '../../api/LetterApi';
+import NoContent from '../../components/NoContent';
+import {NoContentContainer} from '../../components/NoContent';
+import {NoContentText} from '../../components/NoContent';
+import familyStore from '../../stores/FamilyStore';
 
-export default function LetterBoxReceived({ navigation, route }) {
+export default function LetterBoxReceived({navigation, route}) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
@@ -29,10 +29,10 @@ export default function LetterBoxReceived({ navigation, route }) {
     isLoading: lettersIsLoading,
     refetch: refetchLetters,
   } = useQuery(
-    ["LettersReceived", { prev }],
-    () => findLettersReceivedApi({ prev }),
+    ['LettersReceived', {prev}],
+    () => findLettersReceivedApi({prev}),
     {
-      onSuccess: ({ data }) => {
+      onSuccess: ({data}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -44,7 +44,7 @@ export default function LetterBoxReceived({ navigation, route }) {
         setIsLoading(false);
       },
       enabled: queryEnable,
-    }
+    },
   );
 
   const [refreshing, setRefreshing] = useState(false);
@@ -62,7 +62,7 @@ export default function LetterBoxReceived({ navigation, route }) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({ item: letter }) => (
+  const renderLetter = ({item: letter}) => (
     <Letter
       id={letter.id}
       isRead={letter.isRead} // 백엔드 수정 필요
@@ -75,10 +75,10 @@ export default function LetterBoxReceived({ navigation, route }) {
 
   useEffect(() => {
     const unsubscribe = DeviceEventEmitter.addListener(
-      "isRead",
-      ({ letterId }) => {
+      'isRead',
+      ({letterId}) => {
         const indexToChange = letters.findIndex(
-          (letter) => letter.id === letterId
+          letter => letter.id === letterId,
         );
 
         // console.log(id, isMetoo, metoosCount);
@@ -95,7 +95,7 @@ export default function LetterBoxReceived({ navigation, route }) {
         });
 
         setLetters(newLetters);
-      }
+      },
     );
 
     return () => unsubscribe.remove();
@@ -114,8 +114,8 @@ export default function LetterBoxReceived({ navigation, route }) {
       <FlatList
         data={letters}
         renderItem={renderLetter}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 15 }}
-        style={{ marginTop: 15 }}
+        contentContainerStyle={{paddingHorizontal: 12, paddingBottom: 15}}
+        style={{marginTop: 15}}
         showsVerticalScrollIndicator={false}
         refreshing={refreshing}
         onRefresh={onRefresh}
@@ -127,9 +127,9 @@ export default function LetterBoxReceived({ navigation, route }) {
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
         ListEmptyComponent={() => (
-          <NoContentContainer style={{ paddingVertical: 200 }}>
+          <NoContentContainer style={{paddingVertical: 200}}>
             <NoContentText>
-              {"아직 받은 편지가 없습니다\n가족과 편지를 주고 받아 보세요"}
+              {'아직 받은 편지가 없습니다\n가족과 편지를 주고 받아 보세요'}
             </NoContentText>
           </NoContentContainer>
         )}

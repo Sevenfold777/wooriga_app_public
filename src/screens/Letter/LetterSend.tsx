@@ -13,7 +13,7 @@ import {
   TextInput,
 } from 'react-native';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {BGColors, Colors, EMOTION_KOREAN} from '../../Config';
 import assetStore from '../../stores/AssetStore';
 import {ROUTE_NAME} from '../../Strings';
@@ -36,7 +36,7 @@ import {
 } from '../../components/letter/Letter';
 
 import {observer} from 'mobx-react-lite';
-import DismissKeyboard from '../../components/DismissKeyboard';
+import DismissKeyboard from '../../components/common/DismissKeyboard';
 import {CommonActions, useFocusEffect} from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import {
@@ -71,7 +71,7 @@ import {
 } from '../../api/LetterApi';
 import {Animated} from 'react-native';
 import GuideModal from '../../components/modals/GuideModal';
-import InviteModal from '../../components/Invite';
+import InviteModal from '../../components/InviteModal';
 import {INVITATION_URL} from '../../api/ApiConfig';
 import {SignedInScreenProps} from '../../navigators/types';
 import {RowContainer} from '../../components/common/Common';

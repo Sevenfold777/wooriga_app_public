@@ -21,6 +21,7 @@ import {
   unlikePhotoApi,
 } from '../../api/PhotosApi';
 import Comment, {
+  MoreCommentsBtn,
   MoreCommentsContainer,
   MoreCommentsText,
 } from '../../components/Comment';
@@ -30,7 +31,7 @@ import mutationStore from '../../stores/MutationStore';
 import DetailModal from '../../components/DetailModal';
 import {IndicatorWrapper} from '../../components/CarouselIndicator';
 import authStore from '../../stores/AuthStore';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import Modal from 'react-native-modal';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import PagerView from 'react-native-pager-view';
@@ -436,12 +437,16 @@ export function Photo({
               isDetail={comment.author.id === authStore.userId}
             />
           ))}
-          <MoreCommentsContainer
-            onPress={() => {
-              navigation.navigate('PhotoComments', {photo});
-            }}>
-            <MoreCommentsText>댓글 더 보기 +</MoreCommentsText>
-          </MoreCommentsContainer>
+          {photo.commentsCount > 0 ? (
+            <MoreCommentsContainer
+              onPress={() => {
+                navigation.navigate('PhotoComments', {photo});
+              }}>
+              <MoreCommentsBtn>
+                <MoreCommentsText>댓글 더 보기 +</MoreCommentsText>
+              </MoreCommentsBtn>
+            </MoreCommentsContainer>
+          ) : null}
         </CommentsContainer>
       </ScrollView>
 
@@ -498,7 +503,6 @@ export function Photo({
         <View
           style={{
             paddingTop: 7,
-            // paddingBottom: 20,
             width: '100%',
             height: '100%',
           }}>

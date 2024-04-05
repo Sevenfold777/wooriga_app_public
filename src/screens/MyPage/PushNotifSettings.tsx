@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components/native";
-import { editUserApi, myProfile } from "../../api/UsersApi";
-import Menu from "../../components/myPage/Menu";
+import React, {useEffect, useState} from 'react';
+import styled from 'styled-components/native';
+import {editUserApi, myProfile} from '../../api/UsersApi';
+import Menu from '../../components/myPage/Menu';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from "../../components/ScreenLayout";
-import { Colors } from "../../Config";
-import useMe from "../../hooks/useMe";
-import { MenuContainer } from "./MyPage";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { ActivityIndicator, Linking } from "react-native";
+} from '../../components/common/ScreenLayout';
+import {Colors} from '../../Config';
+import useMe from '../../hooks/useMe';
+import {MenuContainer} from './MyPage';
+import {useQuery, useMutation} from '@tanstack/react-query';
+import {ActivityIndicator, Linking} from 'react-native';
 
 const PushContainer = styled.View`
   border: 0.5px solid #aeaeae;
@@ -22,7 +22,7 @@ const PushContainer = styled.View`
 
 const PushTitle = styled.Text`
   flex: 1;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 const Button = styled.TouchableOpacity`
@@ -38,7 +38,7 @@ const Button = styled.TouchableOpacity`
 const ButtonText = styled.Text`
   color: white;
   font-size: 12px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   /* padding: 10px; */
 `;
 
@@ -63,27 +63,26 @@ const ToggleButton = styled.TouchableOpacity`
   /* height: 30px; */
   padding: 10px 16px;
   border-radius: 30px;
-  background-color: ${(props) =>
-    props.isFocused ? Colors.main : "transparent"};
+  background-color: ${props => (props.isFocused ? Colors.main : 'transparent')};
 `;
 
 const ToggleText = styled.Text`
   font-size: 12px;
-  font-family: "nanum-bold";
-  color: ${(props) => (props.isFocused ? "white" : "black")};
+  font-family: 'nanum-bold';
+  color: ${props => (props.isFocused ? 'white' : 'black')};
 `;
 
-export default function PushNofitSettings({ navigation }) {
+export default function PushNofitSettings({navigation}) {
   const [mktOn, setMktOn] = useState(false);
 
-  const { data: me, isLoading } = useQuery(["Me"], myProfile, {
-    onSuccess: (data) => setMktOn(data?.data.mktPushAgreed),
+  const {data: me, isLoading} = useQuery(['Me'], myProfile, {
+    onSuccess: data => setMktOn(data?.data.mktPushAgreed),
   });
 
   const editUser = useMutation(editUserApi);
 
   useEffect(() => {
-    navigation.addListener("beforeRemove", (e) => {
+    navigation.addListener('beforeRemove', e => {
       if (me?.data.mktPushAgreed !== mktOn) {
         editUser.mutate({
           mktPushAgreed: mktOn,

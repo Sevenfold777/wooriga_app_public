@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { DeviceEventEmitter, FlatList, View } from "react-native";
-import styled from "styled-components/native";
-import ScreenLayout from "../../components/ScreenLayout";
-import { TimeCapsule } from "../../components/letter/LetterTheme";
-import { ROUTE_NAME } from "../../Strings";
-import { findLettersSentApi } from "../../api/LetterApi";
-import { NoContentContainer, NoContentText } from "../../components/NoContent";
-import { ActivityIndicator } from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import familyStore from "../../stores/FamilyStore";
+import React, {useEffect, useState} from 'react';
+import {DeviceEventEmitter, FlatList, View} from 'react-native';
+import styled from 'styled-components/native';
+import ScreenLayout from '../../components/common/ScreenLayout';
+import {TimeCapsule} from '../../components/letter/LetterTheme';
+import {ROUTE_NAME} from '../../Strings';
+import {findLettersSentApi} from '../../api/LetterApi';
+import {NoContentContainer, NoContentText} from '../../components/NoContent';
+import {ActivityIndicator} from 'react-native';
+import {useQuery} from '@tanstack/react-query';
+import familyStore from '../../stores/FamilyStore';
 
 const Wrapper = styled.View`
   padding: 0px 12px 0px 12px;
 `;
 
-export default function TimeCapsulesSent({ navigation, route }) {
+export default function TimeCapsulesSent({navigation, route}) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
@@ -33,10 +33,10 @@ export default function TimeCapsulesSent({ navigation, route }) {
     isLoading: lettersIsLoading,
     refetch: refetchLetters,
   } = useQuery(
-    ["LettersSent", { prev }],
-    () => findLettersSentApi({ prev, isTimeCapsule: true }),
+    ['LettersSent', {prev}],
+    () => findLettersSentApi({prev, isTimeCapsule: true}),
     {
-      onSuccess: ({ data }) => {
+      onSuccess: ({data}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -48,7 +48,7 @@ export default function TimeCapsulesSent({ navigation, route }) {
         setIsLoading(false);
       },
       enabled: queryEnable,
-    }
+    },
   );
 
   const [refreshing, setRefreshing] = useState(false);
@@ -66,7 +66,7 @@ export default function TimeCapsulesSent({ navigation, route }) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({ item: letter }) => (
+  const renderLetter = ({item: letter}) => (
     <TimeCapsule
       id={letter.id}
       title={letter.title}
@@ -82,11 +82,11 @@ export default function TimeCapsulesSent({ navigation, route }) {
 
   useEffect(() => {
     const unsubscribe = DeviceEventEmitter.addListener(
-      "isDeleted",
-      ({ letterId }) => {
-        const newLetters = letters.filter((letter) => letterId !== letter.id);
+      'isDeleted',
+      ({letterId}) => {
+        const newLetters = letters.filter(letter => letterId !== letter.id);
         setLetters(newLetters);
-      }
+      },
     );
 
     return () => unsubscribe.remove();
@@ -105,8 +105,8 @@ export default function TimeCapsulesSent({ navigation, route }) {
       <FlatList
         data={letters}
         renderItem={renderLetter}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 15 }}
-        style={{ marginTop: 15 }}
+        contentContainerStyle={{paddingHorizontal: 12, paddingBottom: 15}}
+        style={{marginTop: 15}}
         showsVerticalScrollIndicator={false}
         refreshing={refreshing}
         onRefresh={onRefresh}
@@ -118,9 +118,9 @@ export default function TimeCapsulesSent({ navigation, route }) {
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
         ListEmptyComponent={() => (
-          <NoContentContainer style={{ paddingVertical: 200 }}>
+          <NoContentContainer style={{paddingVertical: 200}}>
             <NoContentText>
-              {"공개 예정인 타임캡슐이 없습니다\n타임캡슐을 작성해보세요"}
+              {'공개 예정인 타임캡슐이 없습니다\n타임캡슐을 작성해보세요'}
             </NoContentText>
           </NoContentContainer>
         )}

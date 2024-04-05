@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import DismissKeyboard from '../components/DismissKeyboard';
-import ScreenLayout from '../components/ScreenLayout';
+import DismissKeyboard from '../components/common/DismissKeyboard';
+import ScreenLayout from '../components/common/ScreenLayout';
 import Modal from 'react-native-modal';
 import {ModalContainer} from '../components/DailyEmotion';
 import {TouchableOpacity} from 'react-native';

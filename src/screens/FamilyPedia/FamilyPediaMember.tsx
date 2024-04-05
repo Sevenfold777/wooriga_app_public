@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Ionicons} from '@expo/vector-icons';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {

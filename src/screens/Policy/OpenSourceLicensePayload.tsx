@@ -1,7 +1,7 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import {SignedInScreenProps} from '../../navigators/types';
 

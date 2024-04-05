@@ -10,8 +10,8 @@ import {
 import styled from 'styled-components/native';
 import {createInquiryApi, editInquiryApi} from '../../api/UserInquiry';
 import Completed from '../../components/Completed';
-import DismissKeyboard from '../../components/DismissKeyboard';
-import ScreenLayout from '../../components/ScreenLayout';
+import DismissKeyboard from '../../components/common/DismissKeyboard';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import {SignedInScreenProps} from '../../navigators/types';
 

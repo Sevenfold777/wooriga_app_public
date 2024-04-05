@@ -13,7 +13,7 @@ import MessageMiddle from '../../../components/message/MessageMiddle';
 import NoContent from '../../../components/NoContent';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../../components/ScreenLayout';
+} from '../../../components/common/ScreenLayout';
 import {SignedInScreenProps} from '../../../navigators/types';
 import {BGColors} from '../../../Config';
 

@@ -1,24 +1,18 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  getProfile,
-  login,
-  KakaoOAuthToken,
-} from '@react-native-seoul/kakao-login';
+import {getProfile, login} from '@react-native-seoul/kakao-login';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import {useMutation} from '@tanstack/react-query';
 import React from 'react';
-import {METHOD, _promise} from '../../../api/ApiConfig';
 import {loginApi} from '../../../api/AuthApi';
-import {joinFamilyApi} from '../../../api/FamilyApi';
 import authStore from '../../../stores/AuthStore';
-import familyStore from '../../../stores/FamilyStore';
-import BaseButton from './BaseButton';
-import RNRestart from 'react-native-restart';
+import BaseButton, {SignInResponse} from './BaseButton';
 import PropTypes from 'prop-types';
-import {ROUTE_NAME} from '../../../Strings';
 import Toast from '../../Toast';
 
-export default function KakaoButton({familyJoinToken}) {
+export default function KakaoButton({
+  familyJoinToken,
+}: {
+  familyJoinToken: string;
+}) {
   const navigation = useNavigation();
 
   const loginWithToken = useMutation(loginApi);
@@ -37,7 +31,7 @@ export default function KakaoButton({familyJoinToken}) {
           } = data;
 
           if (!ok && signUpRequired) {
-            navigation.navigate(ROUTE_NAME.SIGN_UP, {
+            navigation.navigate('SignUp', {
               userName: user.nickname,
               email: user.email,
               ...(familyJoinToken && {familyId: familyJoinToken}),
@@ -52,20 +46,19 @@ export default function KakaoButton({familyJoinToken}) {
             // 완료 후 navigation 전환 --> LoggedInNav
 
             if (familyJoinToken) {
-              if (
-                navigation.getState().routes[0].name === ROUTE_NAME.MAIN_TAB_NAV
-              )
+              if (navigation.getState()?.routes[0].name === 'MainTabNav') {
                 navigation.dispatch(
                   CommonActions.reset({
                     index: 0,
                     routes: [
                       {
-                        name: ROUTE_NAME.FAMILY_JOIN,
+                        name: 'FamilyJoin',
                         params: {id: familyJoinToken},
                       },
                     ],
                   }),
                 );
+              }
             }
           }
         },
@@ -79,6 +72,7 @@ export default function KakaoButton({familyJoinToken}) {
       logoPath={require('../../../../assets/images/kakao.png')}
       onPress={loginKakao}
       textPayload="카카오톡으로 로그인"
+      textColor="black"
     />
   );
 }

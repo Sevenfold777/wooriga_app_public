@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Ionicons} from '@expo/vector-icons';
 import {Colors} from '../../Config';
 import {Text, TouchableWithoutFeedback, View} from 'react-native';

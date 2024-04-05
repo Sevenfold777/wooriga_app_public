@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { ScrollView, StatusBar, useWindowDimensions, View } from "react-native";
-import Modal from "react-native-modal";
-import styled from "styled-components/native";
-import { Ionicons } from "@expo/vector-icons";
-import PropTypes from "prop-types";
-import { Colors } from "../Config";
+import React, {useState} from 'react';
+import {ScrollView, StatusBar, useWindowDimensions, View} from 'react-native';
+import Modal from 'react-native-modal';
+import styled from 'styled-components/native';
+import {Ionicons} from '@expo/vector-icons';
+import PropTypes from 'prop-types';
+import {Colors} from '../Config';
 
 /** detail modal */
 export const DetailModalContainer = styled.View`
@@ -18,7 +18,7 @@ export const DetailModalAction = styled.TouchableOpacity``;
 export const DetailModalText = styled.Text`
   font-size: 16px;
   padding: 15px 10px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 /** confirm modal */
@@ -31,7 +31,7 @@ export const ConfirmModalContainer = styled.View`
 export const ConfirmModalText = styled.Text`
   font-size: 16px;
   text-align: center;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 export const ConfirmModalBtn = styled.TouchableOpacity`
@@ -39,16 +39,31 @@ export const ConfirmModalBtn = styled.TouchableOpacity`
   padding: 15px;
 `;
 
+type Props = {
+  isDetailModal: boolean;
+  isConfirmModal: boolean;
+  setDetailModal: (value: boolean) => void;
+  setConfirmModal: (value: boolean) => void;
+  actions: {
+    name: string;
+    func: () => void;
+    confirmNeeded: boolean;
+    confirmMessage: string;
+  }[];
+};
+
 export default function DetailModal({
   isDetailModal,
   isConfirmModal,
   setDetailModal,
   setConfirmModal,
   actions,
-}) {
+}: Props) {
   /**  actions: {name: string, func: () =>{}, confirmNeeded: boolean, confirmMessage?: string}[]  */
-  const [actionPressed, setActionPressed] = useState();
-  const { height: pageHeight } = useWindowDimensions();
+  const [actionPressed, setActionPressed] = useState<number>();
+  const {height: pageHeight} = useWindowDimensions();
+  const modalDeviceHeight =
+    pageHeight + 10 + (StatusBar.currentHeight ? StatusBar.currentHeight : 100);
 
   return (
     <View>
@@ -56,35 +71,33 @@ export default function DetailModal({
         isVisible={isDetailModal}
         onBackdropPress={() => {
           setDetailModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         onSwipeComplete={() => {
           setDetailModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         onBackButtonPress={() => {
           setDetailModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         swipeDirection="down"
-        onModalHide={() =>
-          actions[actionPressed]?.confirmNeeded
-            ? setConfirmModal(true)
-            : setConfirmModal(false)
-        }
-        style={{
-          margin: 0,
-          justifyContent: "flex-end",
+        onModalHide={() => {
+          if (actionPressed) {
+            actions[actionPressed]?.confirmNeeded
+              ? setConfirmModal(true)
+              : setConfirmModal(false);
+          }
         }}
+        style={{justifyContent: 'flex-end'}}
         backdropTransitionOutTiming={0}
         statusBarTranslucent
         animationIn="fadeInUp"
         animationOut="fadeOutDown"
-        deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-      >
+        deviceHeight={modalDeviceHeight}>
         <DetailModalContainer>
-          <View style={{ alignItems: "center", marginBottom: 10 }}>
-            <View style={{ position: "absolute" }}>
+          <View style={{alignItems: 'center', marginBottom: 10}}>
+            <View style={{position: 'absolute'}}>
               <Ionicons name="remove" size={30} />
             </View>
           </View>
@@ -98,8 +111,7 @@ export default function DetailModal({
                     : await action.func();
 
                   setDetailModal(false);
-                }}
-              >
+                }}>
                 <DetailModalText>{action.name}</DetailModalText>
               </DetailModalAction>
             ))}
@@ -108,47 +120,48 @@ export default function DetailModal({
       </Modal>
 
       <Modal
-        isVisible={isConfirmModal && actions[actionPressed]?.confirmNeeded}
+        isVisible={
+          isConfirmModal &&
+          actionPressed !== undefined &&
+          actions[actionPressed]?.confirmNeeded
+        }
         onBackdropPress={() => {
           setConfirmModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         onSwipeComplete={() => {
           setConfirmModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         onBackButtonPress={() => {
           setConfirmModal(false);
-          setActionPressed();
+          setActionPressed(undefined);
         }}
         swipeDirection="down"
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
         animationIn="fadeIn"
         animationOut="fadeOut"
         backdropTransitionOutTiming={0}
         statusBarTranslucent
-        deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-      >
+        deviceHeight={modalDeviceHeight}>
         <ConfirmModalContainer>
-          <View style={{ padding: 30 }}>
+          <View style={{padding: 30}}>
             <ConfirmModalText>
-              {actions[actionPressed]?.confirmMessage}
+              {actionPressed ? actions[actionPressed]?.confirmMessage : null}
             </ConfirmModalText>
           </View>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "center",
+              flexDirection: 'row',
+              justifyContent: 'center',
               borderTopWidth: 0.3,
               borderTopColor: Colors.borderDark,
-            }}
-          >
+            }}>
             <ConfirmModalBtn
               onPress={() => {
                 setConfirmModal(false);
-                setActionPressed();
-              }}
-            >
+                setActionPressed(undefined);
+              }}>
               <ConfirmModalText>취소</ConfirmModalText>
             </ConfirmModalBtn>
             <ConfirmModalBtn
@@ -157,12 +170,12 @@ export default function DetailModal({
                 borderLeftColor: Colors.borderDark,
               }}
               onPress={async () => {
-                await actions[actionPressed].func();
-
-                setActionPressed();
+                if (actionPressed) {
+                  await actions[actionPressed].func();
+                }
+                setActionPressed(undefined);
                 setConfirmModal(false);
-              }}
-            >
+              }}>
               <ConfirmModalText>확인</ConfirmModalText>
             </ConfirmModalBtn>
           </View>
@@ -183,6 +196,6 @@ DetailModal.propTypes = {
       func: PropTypes.func.isRequired,
       confirmNeeded: PropTypes.bool.isRequired,
       confirmMessage: PropTypes.string,
-    })
+    }),
   ),
 };

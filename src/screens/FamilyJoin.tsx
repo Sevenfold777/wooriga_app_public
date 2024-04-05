@@ -4,7 +4,7 @@ import {DevSettings, Text, View} from 'react-native';
 import {ActivityIndicator} from 'react-native';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../components/ScreenLayout';
+} from '../components/common/ScreenLayout';
 import {joinFamilyApi} from '../api/FamilyApi';
 import styled from 'styled-components/native';
 

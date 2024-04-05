@@ -19,7 +19,7 @@ import Message, {
   SpringBtn,
   SpringBtnText,
 } from '../../../components/message/Message';
-import ScreenLayout from '../../../components/ScreenLayout';
+import ScreenLayout from '../../../components/common/ScreenLayout';
 import {Ionicons, Octicons} from '@expo/vector-icons';
 import NoMessage from '../../../components/message/NoMessage';
 import {ROUTE_NAME, ServiceLinked} from '../../../Strings';

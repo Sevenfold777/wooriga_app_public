@@ -16,7 +16,6 @@ const ModalContainer = styled.View`
 `;
 
 const ConfirmModalText = styled.Text`
-  font-size: 16px;
   text-align: center;
   font-family: 'nanum-regular';
 `;

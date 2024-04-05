@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import styled from 'styled-components/native';
 import {useMutation} from '@tanstack/react-query';
 import {createPhotoApi} from '../../api/PhotosApi';

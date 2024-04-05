@@ -33,13 +33,13 @@ export type SignedInParams = {
     };
   };
 
-  ChangeNickname: undefined;
-  BannersPayload: undefined;
+  ChangeNickname: {id: number; name: string; nickname: string};
+  BannersPayload: {url: string; title?: string};
   Notifications: undefined;
 
   FamilyJoin: {id: number};
 
-  FamilyPediaMember: {id: number};
+  FamilyPediaMember: {pediaId: number};
   FamilyPediaSelectPhoto: undefined;
 
   Report: undefined;
@@ -132,8 +132,15 @@ export type TimeCapsuleScreenProps<T extends keyof TimeCapsuleParams> =
 
 /* 6. Signed Out Nav */
 export type SignedOutParams = {
-  SignIn: undefined;
-  SignUp: undefined;
+  SignIn: {familyId: string} | undefined;
+  SignUp: {
+    userName?: string;
+    email: string;
+    familyId?: string;
+    provider: string;
+    token: string;
+    nonce?: string;
+  };
 
   TermsOfUse: undefined;
   OperationPolicy: undefined;

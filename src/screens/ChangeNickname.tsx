@@ -3,7 +3,7 @@ import {useForm} from 'react-hook-form';
 import {Text} from 'react-native';
 import {TouchableOpacity} from 'react-native';
 import styled from 'styled-components/native';
-import ScreenLayout from '../components/ScreenLayout';
+import ScreenLayout from '../components/common/ScreenLayout';
 import familyStore from '../stores/FamilyStore';
 import mutationStore from '../stores/MutationStore';
 import {Ionicons} from '@expo/vector-icons';

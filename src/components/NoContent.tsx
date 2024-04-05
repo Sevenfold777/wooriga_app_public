@@ -1,7 +1,7 @@
-import React from "react";
-import styled from "styled-components/native";
-import ScreenLayout from "./ScreenLayout";
-import PropTypes from "prop-types";
+import React from 'react';
+import styled from 'styled-components/native';
+import ScreenLayout from './common/ScreenLayout';
+import PropTypes from 'prop-types';
 
 export const NoContentContainer = styled.View`
   flex: 1;
@@ -11,13 +11,13 @@ export const NoContentContainer = styled.View`
 
 export const NoContentText = styled.Text`
   padding: 5px 0px;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   font-size: 16px;
   line-height: 24px;
   text-align: center;
 `;
 
-export default function NoContent({ payload }) {
+export default function NoContent({payload}: {payload: string}) {
   return (
     <ScreenLayout>
       <NoContentContainer>

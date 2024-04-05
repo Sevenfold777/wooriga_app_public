@@ -9,7 +9,7 @@ import {
 import FastImage from 'react-native-fast-image';
 import styled from 'styled-components/native';
 import {findAllFamilyPediaApi} from '../../api/FamilyPediaApi';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import authStore from '../../stores/AuthStore';
 import familyStore from '../../stores/FamilyStore';

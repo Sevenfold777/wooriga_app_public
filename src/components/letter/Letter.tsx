@@ -1,7 +1,7 @@
-import { Platform } from "react-native";
-import styled from "styled-components/native";
-import { Colors } from "../../Config";
-import { InputContainer } from "../../screens/Auth/SignUp";
+import {Platform} from 'react-native';
+import styled from 'styled-components/native';
+import {Colors} from '../../Config';
+import {InputContainer} from '../../screens/Auth/SignUp';
 
 export const LetterContainer = styled.View`
   padding: 20px;
@@ -13,15 +13,15 @@ export const HeaderContainer = styled.View`
 `;
 
 export const HeaderText = styled.Text`
-  font-family: "kangwon-font";
+  font-family: 'kangwon-font';
   font-size: 24px;
   margin: 0px 10px;
 `;
 
 export const LetterText = styled.Text`
-  font-family: "kangwon-font";
+  font-family: 'kangwon-font';
   font-size: 24px;
-  /* font-size: ${Platform.OS === "ios" ? "22px" : "24px"}; */
+  /* font-size: ${Platform.OS === 'ios' ? '22px' : '24px'}; */
   line-height: 32px;
   margin: 0px 10px;
 `;
@@ -47,7 +47,7 @@ export const PageContainer = styled.View`
 `;
 
 export const PageText = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   color: ${Colors.white};
   font-size: 12px;
 `;
@@ -86,7 +86,7 @@ export const DetailModalRow = styled.TouchableOpacity`
 `;
 
 export const DetailModalText = styled.Text`
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
 export const Prompt = styled.View`
@@ -95,7 +95,7 @@ export const Prompt = styled.View`
 `;
 
 export const PromptText = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
   font-size: 16px;
 `;
 
@@ -116,10 +116,10 @@ export const StartBtn = styled.TouchableOpacity`
   background-color: ${Colors.main};
   padding: 12px;
   border-radius: 10px;
-  opacity: ${(props) => (props.disabled ? "0.5" : "1")};
+  opacity: ${props => (props.disabled ? '0.5' : '1')};
 `;
 
 export const StartBtnText = styled.Text`
   /* font-size: 16px; */
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
 `;

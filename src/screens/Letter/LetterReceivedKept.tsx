@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components/native";
-import { Letter } from "../../components/letter/LetterBox";
-import ScreenLayout from "../../components/ScreenLayout";
-import { findLettersKeptApi } from "../../api/LetterApi";
-import familyStore from "../../stores/FamilyStore";
-import NoContent from "../../components/NoContent";
-import { useQuery } from "@tanstack/react-query";
-import { ActivityIndicator, DeviceEventEmitter } from "react-native";
-import { FlatList } from "react-native";
+import React, {useEffect, useState} from 'react';
+import styled from 'styled-components/native';
+import {Letter} from '../../components/letter/LetterBox';
+import ScreenLayout from '../../components/common/ScreenLayout';
+import {findLettersKeptApi} from '../../api/LetterApi';
+import familyStore from '../../stores/FamilyStore';
+import NoContent from '../../components/NoContent';
+import {useQuery} from '@tanstack/react-query';
+import {ActivityIndicator, DeviceEventEmitter} from 'react-native';
+import {FlatList} from 'react-native';
 
 const Wrapper = styled.View`
   padding: 5px 12px;
 `;
 
-export default function LetterReceivedKept({ navigation, route }) {
+export default function LetterReceivedKept({navigation, route}) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
@@ -31,24 +31,20 @@ export default function LetterReceivedKept({ navigation, route }) {
     data,
     isLoading: lettersIsLoading,
     refetch: refetchLetters,
-  } = useQuery(
-    ["LettersReceived", { prev }],
-    () => findLettersKeptApi({ prev }),
-    {
-      onSuccess: ({ data }) => {
-        if (data.length === 0) {
-          setIsLast(true);
-        } else {
-          setPrev(prev + 1);
-          setLetters([...letters, ...data]);
-        }
+  } = useQuery(['LettersReceived', {prev}], () => findLettersKeptApi({prev}), {
+    onSuccess: ({data}) => {
+      if (data.length === 0) {
+        setIsLast(true);
+      } else {
+        setPrev(prev + 1);
+        setLetters([...letters, ...data]);
+      }
 
-        setQueryEnable(false);
-        setIsLoading(false);
-      },
-      enabled: queryEnable,
-    }
-  );
+      setQueryEnable(false);
+      setIsLoading(false);
+    },
+    enabled: queryEnable,
+  });
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -65,7 +61,7 @@ export default function LetterReceivedKept({ navigation, route }) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({ item: letter }) => (
+  const renderLetter = ({item: letter}) => (
     <Letter
       id={letter.id}
       isRead={letter.isRead}
@@ -77,14 +73,14 @@ export default function LetterReceivedKept({ navigation, route }) {
 
   useEffect(() => {
     const unsubscribe = DeviceEventEmitter.addListener(
-      "unkeep",
-      ({ letterId }) => {
-        const newLetters = letters.filter((letter) => letterId !== letter.id);
+      'unkeep',
+      ({letterId}) => {
+        const newLetters = letters.filter(letter => letterId !== letter.id);
         if (!newLetters.length) {
           setIsLast(true);
         }
         setLetters(newLetters);
-      }
+      },
     );
 
     return () => unsubscribe.remove();
@@ -106,9 +102,9 @@ export default function LetterReceivedKept({ navigation, route }) {
         contentContainerStyle={{
           paddingHorizontal: 12,
           paddingBottom: 15,
-          minHeight: "100%",
+          minHeight: '100%',
         }}
-        style={{ marginTop: 15 }}
+        style={{marginTop: 15}}
         showsVerticalScrollIndicator={false}
         refreshing={refreshing}
         onRefresh={onRefresh}
@@ -122,7 +118,7 @@ export default function LetterReceivedKept({ navigation, route }) {
         ListEmptyComponent={() => (
           <NoContent
             payload={
-              "보관한 편지가 없습니다\n기억하고 싶은 편지를 보관해보세요"
+              '보관한 편지가 없습니다\n기억하고 싶은 편지를 보관해보세요'
             }
           />
         )}

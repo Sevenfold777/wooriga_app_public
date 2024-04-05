@@ -12,7 +12,7 @@ import {deleteInquiryApi, findInquiriesApi} from '../../api/UserInquiry';
 import NoContent from '../../components/NoContent';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import Modal from 'react-native-modal';
 import {
   ConfirmModalBtn,

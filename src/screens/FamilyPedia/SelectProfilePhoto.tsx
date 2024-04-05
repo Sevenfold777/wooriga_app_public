@@ -14,7 +14,7 @@ import * as MediaLibrary from 'expo-media-library';
 import styled from 'styled-components/native';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import {SignedInScreenProps} from '../../navigators/types';
 

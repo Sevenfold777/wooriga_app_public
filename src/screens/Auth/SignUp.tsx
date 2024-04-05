@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import Modal from 'react-native-modal';
 import {ModalContainer} from '../../components/DailyEmotion';
 import {
@@ -18,7 +18,6 @@ import {Ionicons} from '@expo/vector-icons';
 import {Controller, useForm} from 'react-hook-form';
 import {useMutation} from '@tanstack/react-query';
 import {createAccountApi, loginApi} from '../../api/AuthApi';
-import {_promise} from '../../api/ApiConfig';
 import authStore from '../../stores/AuthStore';
 import {Colors} from '../../Config';
 import {ROUTE_NAME} from '../../Strings';
@@ -36,6 +35,7 @@ import {
 } from '../../components/Permissions';
 import Toast from '../../components/Toast';
 import {RowContainer} from '../../components/common/Common';
+import {SignedOutScreenProps} from '../../navigators/types';
 
 export const Wrapper = styled.View`
   padding: 10px;
@@ -120,10 +120,15 @@ const HeaderRightBtn = styled.TouchableOpacity`
   opacity: ${props => (props.disabled ? 0.5 : 1)};
 `;
 
-export default function SignUp({navigation, route: {params}}) {
+export default function SignUp({
+  navigation,
+  route: {params},
+}: SignedOutScreenProps<'SignUp'>) {
   const positions = ['할아버지', '할머니', '아빠', '엄마', '아들', '딸'];
 
   const {height: pageHeight} = useWindowDimensions();
+  const modalDeviceHeight =
+    pageHeight + 10 + (StatusBar.currentHeight ? StatusBar.currentHeight : 100);
 
   const [positionModal, setPositionModal] = useState(false);
   const [positionPressed, setPosionPressed] = useState('선택');
@@ -142,19 +147,24 @@ export default function SignUp({navigation, route: {params}}) {
   /** 만 14세 미만 */
   const [underFourteen, setUnderFourteen] = useState(false);
 
-  const {control, handleSubmit, getValues, clearErrors, formState, watch} =
-    useForm({
-      ...(params?.userName && {defaultValues: {userName: params.userName}}),
-    });
+  const {control, handleSubmit, watch} = useForm({
+    ...(params?.userName && {defaultValues: {userName: params.userName}}),
+  });
 
-  const onValid = ({userName, birthday}) => {
+  const onValid = ({
+    userName,
+    birthday,
+  }: {
+    userName: string;
+    birthday: string;
+  }) => {
     const birthdayString = `${birthday.slice(0, 4)}-${birthday.slice(
       4,
       6,
     )}-${birthday.slice(6)}`;
 
     // invalid date type
-    if (isNaN(new Date(birthdayString))) {
+    if (isNaN(new Date(birthdayString).getTime())) {
       Toast({message: '잘못된 생일 형식입니다.'});
       return;
     }
@@ -169,18 +179,17 @@ export default function SignUp({navigation, route: {params}}) {
       return;
     }
 
-    navigation.setOptions({headerLeft: null, gestureEnabled: false});
+    navigation.setOptions({headerLeft: () => null, gestureEnabled: false});
 
     signUp.mutate({
-      email: params?.email,
+      email: params.email,
       userName,
       birthday,
       position: positionPressed,
-      // familyToken,
       familyToken: params?.familyId,
-      provider: params?.provider,
+      provider: params.provider,
       mktPushAgreed,
-      token: params?.token,
+      token: params.token,
       ...(params?.nonce && {nonce: params?.nonce}),
       isBirthLunar,
     });
@@ -219,6 +228,7 @@ export default function SignUp({navigation, route: {params}}) {
   });
 
   /** set header right Button */
+  // eslint-disable-next-line react/no-unstable-nested-components
   const HeaderRight = () => (
     <HeaderRightBtn
       onPress={handleSubmit(onValid)}
@@ -259,12 +269,13 @@ export default function SignUp({navigation, route: {params}}) {
         backAction,
       );
 
-      navigation.setOptions({headerRight: () => {}});
+      navigation.setOptions({headerRight: () => null});
 
       return () => backhandler.remove();
     }
   }, [signUp.isLoading, loginWithToken.isLoading]);
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   const Agreement = ({title, agreedState, setAgreedState, routeName}) => {
     return (
       <View
@@ -490,7 +501,7 @@ export default function SignUp({navigation, route: {params}}) {
                 setPositionModal(false);
               }}
               statusBarTranslucent
-              deviceHeight={pageHeight + StatusBar.currentHeight + 10}
+              deviceHeight={modal}
               swipeDirection="down"
               animationIn="fadeInUp"
               animationOut="fadeOutDown"
@@ -540,7 +551,7 @@ export default function SignUp({navigation, route: {params}}) {
               animationOut="fadeOutDown"
               backdropTransitionOutTiming={0}
               statusBarTranslucent
-              deviceHeight={pageHeight + StatusBar.currentHeight + 10}>
+              deviceHeight={modalDeviceHeight}>
               <BirthPolicyContainer>
                 <TouchableOpacity
                   style={{
@@ -604,7 +615,7 @@ export default function SignUp({navigation, route: {params}}) {
   );
 }
 
-export function getAge(birthString) {
+export function getAge(birthString: string) {
   const today = new Date();
   const birthday = new Date(birthString);
 

@@ -1,10 +1,10 @@
-import React from "react";
-import Menu from "../../components/myPage/Menu";
-import ScreenLayout from "../../components/ScreenLayout";
-import { ROUTE_NAME } from "../../Strings";
-import { MenuContainer } from "./MyPage";
+import React from 'react';
+import Menu from '../../components/myPage/Menu';
+import ScreenLayout from '../../components/common/ScreenLayout';
+import {ROUTE_NAME} from '../../Strings';
+import {MenuContainer} from './MyPage';
 
-export default function Infos({ navigation, route }) {
+export default function Infos({navigation, route}) {
   return (
     <ScreenLayout>
       <MenuContainer>

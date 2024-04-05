@@ -1,16 +1,16 @@
-import { useHeaderHeight } from "@react-navigation/elements";
-import React, { useEffect } from "react";
+import {useHeaderHeight} from '@react-navigation/elements';
+import React, {useEffect} from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   View,
-} from "react-native";
-import styled from "styled-components/native";
-import ScreenLayout from "./ScreenLayout";
-import { Ionicons } from "@expo/vector-icons";
-import PropTypes from "prop-types";
-import { Colors } from "../Config";
+} from 'react-native';
+import styled from 'styled-components/native';
+import ScreenLayout from './common/ScreenLayout';
+import {Ionicons} from '@expo/vector-icons';
+import PropTypes from 'prop-types';
+import {Colors} from '../Config';
 
 export const CommentInputContainer = styled.View`
   flex-direction: row;
@@ -32,7 +32,7 @@ const CommentInputWrapper = styled.View`
 const CommentInput = styled.TextInput`
   margin-left: 10px;
   color: black;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
   /* line-height: 18px; */
 `;
 
@@ -43,18 +43,18 @@ export const SendBtn = styled.TouchableOpacity`
   margin: 10px 0px;
   padding: 0px 12px;
   border-radius: 10px;
-  opacity: ${(props) => (props.disabled ? "0.5" : "1")};
+  opacity: ${props => (props.disabled ? '0.5' : '1')};
 `;
 
 export const SendText = styled.Text`
-  font-family: "nanum-bold";
+  font-family: 'nanum-bold';
 `;
 
 export default function InputLayout({
   register,
   children,
   value,
-  placeholder = "댓글을 입력하세요",
+  placeholder = '댓글을 입력하세요',
   onChangeText,
   onSubmitEditing,
   disabled,
@@ -65,17 +65,15 @@ export default function InputLayout({
         style={{
           flex: 1,
           backgroundColor: Colors.white,
-          alignItems: "center",
+          alignItems: 'center',
           //paddingHorizontal: 10, // padding 없으면 인스타 느낌
-        }}
-      >
-        <View style={{ flex: 1, width: "100%" }}>{children}</View>
+        }}>
+        <View style={{flex: 1, width: '100%'}}>{children}</View>
 
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={useHeaderHeight()}
-          style={{ width: "100%" }}
-        >
+          style={{width: '100%'}}>
           <CommentInputContainer>
             <CommentInputWrapper>
               <CommentInput

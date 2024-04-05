@@ -15,7 +15,7 @@ import {
 import styled from 'styled-components/native';
 import {editUserApi, myProfile} from '../../api/UsersApi';
 import {ModalContainer} from '../../components/DailyEmotion';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import useMe from '../../hooks/useMe';
 import authStore from '../../stores/AuthStore';
 import {

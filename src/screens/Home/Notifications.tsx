@@ -18,7 +18,7 @@ import {
 } from '../../components/DetailModal';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import Modal from 'react-native-modal';
 import {Ionicons} from '@expo/vector-icons';
 import NoContent from '../../components/NoContent';

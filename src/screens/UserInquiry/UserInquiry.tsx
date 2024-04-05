@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import ScreenLayout from '../../components/ScreenLayout';
+import ScreenLayout from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import {SignedInScreenProps} from '../../navigators/types';
 

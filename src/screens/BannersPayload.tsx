@@ -3,7 +3,7 @@ import {Image, ScrollView, useWindowDimensions} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import WebView from 'react-native-webview';
 
-import ScreenLayout from '../components/ScreenLayout';
+import ScreenLayout from '../components/common/ScreenLayout';
 import {Colors} from '../Config';
 import {SignedInScreenProps} from '../navigators/types';
 
@@ -18,7 +18,7 @@ export default function BannersPayload({
   }, []);
 
   if (!url) {
-    return <ScreenLayout></ScreenLayout>;
+    return <ScreenLayout />;
   }
 
   return (

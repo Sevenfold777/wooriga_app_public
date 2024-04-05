@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
-} from '../../components/ScreenLayout';
+} from '../../components/common/ScreenLayout';
 import * as MediaLibrary from 'expo-media-library';
 import {Ionicons} from '@expo/vector-icons';
 import PhotoThemeRecommend from '../../components/PhotoThemeRecommed';

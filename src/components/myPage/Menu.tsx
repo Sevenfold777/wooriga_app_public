@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components/native";
-import { Ionicons } from "@expo/vector-icons";
-import PropTypes from "prop-types";
-import { Colors } from "../../Config";
+import React from 'react';
+import styled from 'styled-components/native';
+import {Ionicons} from '@expo/vector-icons';
+import PropTypes from 'prop-types';
+import {Colors} from '../../Config';
 
 export const MenuBar = styled.TouchableOpacity`
   border: 0.5px solid #aeaeae;
@@ -14,10 +14,15 @@ export const MenuBar = styled.TouchableOpacity`
 
 export const MenuTitle = styled.Text`
   flex: 1;
-  font-family: "nanum-regular";
+  font-family: 'nanum-regular';
 `;
 
-export default function Menu({ payload, action }) {
+type Props = {
+  payload: string;
+  action: () => void;
+};
+
+export default function Menu({payload, action}: Props) {
   return (
     <MenuBar onPress={action}>
       <MenuTitle>{payload}</MenuTitle>

@@ -15,7 +15,7 @@ import {BGColors, BottomPhrases, Colors} from '../../Config';
 import {IndicatorWrapper} from '../CarouselIndicator';
 import PagerView from 'react-native-pager-view';
 import PaginationDot from 'react-native-animated-pagination-dot';
-import {RowContainer} from '../Common';
+import {RowContainer} from '../common/Common';
 
 /** styled-components */
 export const Container = styled.View``;
