@@ -1,15 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {editUserApi, myProfile} from '../../api/UsersApi';
-import Menu from '../../components/myPage/Menu';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
 } from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
-import useMe from '../../hooks/useMe';
 import {MenuContainer} from './MyPage';
 import {useQuery, useMutation} from '@tanstack/react-query';
 import {ActivityIndicator, Linking} from 'react-native';
+import {SignedInScreenProps} from '../../navigators/types';
 
 const PushContainer = styled.View`
   border: 0.5px solid #aeaeae;
@@ -31,22 +30,18 @@ const Button = styled.TouchableOpacity`
   background-color: ${Colors.main};
   border-radius: 10px;
   padding: 10px;
-  /* width: 60px; */
-  /* height: 35px; */
 `;
 
 const ButtonText = styled.Text`
   color: white;
   font-size: 12px;
   font-family: 'nanum-regular';
-  /* padding: 10px; */
 `;
 
 const ToggleContainer = styled.View`
   align-items: flex-end;
   justify-content: center;
   background-color: white;
-  /* padding: 10px 0px; */
 `;
 
 const ToggleWrapper = styled.View`
@@ -57,22 +52,23 @@ const ToggleWrapper = styled.View`
   background-color: ${Colors.borderLight};
 `;
 
-const ToggleButton = styled.TouchableOpacity`
+const ToggleButton = styled.TouchableOpacity<{isFocused: boolean}>`
   align-items: center;
   justify-content: center;
-  /* height: 30px; */
   padding: 10px 16px;
   border-radius: 30px;
   background-color: ${props => (props.isFocused ? Colors.main : 'transparent')};
 `;
 
-const ToggleText = styled.Text`
+const ToggleText = styled.Text<{isFocused: boolean}>`
   font-size: 12px;
   font-family: 'nanum-bold';
   color: ${props => (props.isFocused ? 'white' : 'black')};
 `;
 
-export default function PushNofitSettings({navigation}) {
+export default function PushNofitSettings({
+  navigation,
+}: SignedInScreenProps<'PushNotifSettings'>) {
   const [mktOn, setMktOn] = useState(false);
 
   const {data: me, isLoading} = useQuery(['Me'], myProfile, {

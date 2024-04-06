@@ -1,17 +1,16 @@
 import {observer} from 'mobx-react-lite';
 import React from 'react';
-import styled from 'styled-components/native';
 import Menu from '../../components/myPage/Menu';
 import ScreenLayout from '../../components/common/ScreenLayout';
 import useFamily from '../../hooks/useFamily';
 import familyStore from '../../stores/FamilyStore';
-import {ROUTE_NAME} from '../../Strings';
 import {MenuContainer} from './MyPage';
 import NoContent from '../../components/NoContent';
+import {SignedInScreenProps} from '../../navigators/types';
 
-const Container = styled.View``;
-
-function EditFamilyProfile({navigation, route: {params}}) {
+function EditFamilyProfile({
+  navigation,
+}: SignedInScreenProps<'EditFamilyProfile'>) {
   const family = useFamily(true); // exceptMe
 
   return (
@@ -22,12 +21,12 @@ function EditFamilyProfile({navigation, route: {params}}) {
         />
       ) : (
         <MenuContainer>
-          {family?.users.map(user => (
+          {family?.users.map((user: {id: number; userName: string}) => (
             <Menu
               key={user.id}
               payload={familyStore.members[user.id]}
               action={() =>
-                navigation.navigate(ROUTE_NAME.CHANGE_NICKNAME, {
+                navigation.navigate('ChangeNickname', {
                   id: user.id,
                   name: user.userName,
                   nickname: familyStore.members[user.id],

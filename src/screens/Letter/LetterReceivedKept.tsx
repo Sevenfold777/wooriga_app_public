@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import styled from 'styled-components/native';
 import {Letter} from '../../components/letter/LetterBox';
 import ScreenLayout from '../../components/common/ScreenLayout';
 import {findLettersKeptApi} from '../../api/LetterApi';
@@ -8,16 +7,30 @@ import NoContent from '../../components/NoContent';
 import {useQuery} from '@tanstack/react-query';
 import {ActivityIndicator, DeviceEventEmitter} from 'react-native';
 import {FlatList} from 'react-native';
+import {SignedInScreenProps} from '../../navigators/types';
+import {EMOTION_KOREAN} from '../../Config';
 
-const Wrapper = styled.View`
-  padding: 5px 12px;
-`;
+type LetterType = {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  payload: string;
+  emotion: keyof typeof EMOTION_KOREAN;
+  isTimeCapsule: boolean;
+  receiveDate: string;
+  isRead: boolean;
+  isTemp: boolean;
+  receiver: {id: number; userName: string};
+  sender: {id: number; userName: string};
+  keeps: {id: number; user: {id: number}}[];
+};
 
-export default function LetterReceivedKept({navigation, route}) {
+export default function LetterReceivedKept({}: SignedInScreenProps<'LetterReceivedKept'>) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [letters, setLetters] = useState([]);
+  const [letters, setLetters] = useState<LetterType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -27,24 +40,24 @@ export default function LetterReceivedKept({navigation, route}) {
   };
 
   /** react-query: get letters */
-  const {
-    data,
-    isLoading: lettersIsLoading,
-    refetch: refetchLetters,
-  } = useQuery(['LettersReceived', {prev}], () => findLettersKeptApi({prev}), {
-    onSuccess: ({data}) => {
-      if (data.length === 0) {
-        setIsLast(true);
-      } else {
-        setPrev(prev + 1);
-        setLetters([...letters, ...data]);
-      }
+  const {refetch: refetchLetters} = useQuery(
+    ['LettersReceived', {prev}],
+    () => findLettersKeptApi({prev}),
+    {
+      onSuccess: ({data}: {data: LetterType[]}) => {
+        if (data.length === 0) {
+          setIsLast(true);
+        } else {
+          setPrev(prev + 1);
+          setLetters([...letters, ...data]);
+        }
 
-      setQueryEnable(false);
-      setIsLoading(false);
+        setQueryEnable(false);
+        setIsLoading(false);
+      },
+      enabled: queryEnable,
     },
-    enabled: queryEnable,
-  });
+  );
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -61,13 +74,16 @@ export default function LetterReceivedKept({navigation, route}) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({item: letter}) => (
+  const renderLetter = ({item: letter}: {item: LetterType}) => (
     <Letter
       id={letter.id}
       isRead={letter.isRead}
       title={letter.title}
       receiveDate={new Date(letter.receiveDate)}
       target={familyStore.members[letter.sender.id] || letter.sender.userName}
+      isSent={false}
+      isTimeCapsule={false}
+      isTemp={false}
     />
   );
 
@@ -115,6 +131,7 @@ export default function LetterReceivedKept({navigation, route}) {
         }}
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ListEmptyComponent={() => (
           <NoContent
             payload={

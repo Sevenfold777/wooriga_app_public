@@ -5,10 +5,12 @@ import ScreenLayout, {
 } from '../../components/common/ScreenLayout';
 import {Colors} from '../../Config';
 import {Ionicons} from '@expo/vector-icons';
-import {ActivityIndicator, Text, TouchableOpacity, View} from 'react-native';
-import {useMutation, useQuery} from '@tanstack/react-query';
+import {ActivityIndicator, Text, TouchableOpacity} from 'react-native';
+import {useMutation} from '@tanstack/react-query';
 import {quitServiceApi} from '../../api/AuthApi';
 import authStore from '../../stores/AuthStore';
+import {RowContainer} from '../../components/common/Common';
+import {SignedInScreenProps} from '../../navigators/types';
 
 const Container = styled.View`
   padding: 0px 15px;
@@ -16,7 +18,6 @@ const Container = styled.View`
 
 const TextBold = styled.Text`
   font-family: 'nanum-bold';
-
   padding: 5px;
 `;
 
@@ -34,6 +35,7 @@ const Button = styled.TouchableOpacity`
   margin: 15px 2px;
   padding: 12px;
   border-radius: 10px;
+  opacity: ${props => (props.disabled ? 0.5 : 1)};
 `;
 
 const BtnText = styled.Text`
@@ -56,7 +58,7 @@ const AgreeContainer = styled.View`
   justify-content: flex-end;
 `;
 
-export default function Quit({navigation}) {
+export default function Quit({navigation}: SignedInScreenProps<'Quit'>) {
   const [agree, setAgree] = useState(false);
 
   const quitService = useMutation(quitServiceApi, {
@@ -136,12 +138,9 @@ export default function Quit({navigation}) {
             />
           </TouchableOpacity>
         </AgreeContainer>
-        <View style={{flexDirection: 'row'}}>
+        <RowContainer>
           <Button
-            style={{
-              opacity: agree ? 1 : 0.5,
-              backgroundColor: Colors.borderDark,
-            }}
+            style={{backgroundColor: Colors.borderDark}}
             disabled={!agree}
             onPress={() => {
               if (agree) {
@@ -155,7 +154,7 @@ export default function Quit({navigation}) {
             onPress={() => navigation.goBack()}>
             <BtnText>돌아가기</BtnText>
           </Button>
-        </View>
+        </RowContainer>
       </Container>
     </ScreenLayout>
   );

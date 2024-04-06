@@ -1,17 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  AppState,
   DeviceEventEmitter,
   Platform,
   ScrollView,
-  StatusBar,
+  StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 import {Text, View} from 'react-native';
 import {useWindowDimensions} from 'react-native';
 import {
-  DetailModalContainer,
-  DetailModalRow,
   DetailModalText,
   EmotionImg,
   HeaderContainer,
@@ -25,32 +22,30 @@ import ScreenLayout, {
 import {BGColors, Colors} from '../../Config';
 import assetStore from '../../stores/AssetStore';
 import {Ionicons} from '@expo/vector-icons';
-import Modal from 'react-native-modal';
-import styled from 'styled-components/native';
 import {useHeaderHeight} from '@react-navigation/elements';
-import {ROUTE_NAME} from '../../Strings';
 import letterStore from '../../stores/LetterStore';
-import Timer from '../../components/Timer';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {deleteLetterApi, findLetterSentApi} from '../../api/LetterApi';
 import {ActivityIndicator} from 'react-native';
 import {
-  ConfirmModalBtn,
   ConfirmModalContainer,
   ConfirmModalText,
 } from '../../components/DetailModal';
 import Toast from '../../components/Toast';
 import {getTimeCapsuleTime} from '../../components/letter/LetterBox';
-import ViewShot, {captureRef} from 'react-native-view-shot';
+import {captureRef} from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {SignedInScreenProps} from '../../navigators/types';
+import {RowContainer} from '../../components/common/Common';
+import ModalRh, {ModalItem} from '../../components/modals/ModalRh';
+import Modal from '../../components/modals/Modal';
 
 export default function LetterSent({
   navigation,
   route: {params},
 }: SignedInScreenProps<'LetterSent'>) {
-  const viewShotRef = useRef();
+  const viewShotRef = useRef<ScrollView>(null);
   const safeAreaInsets = useSafeAreaInsets();
 
   const {data: letter, isLoading} = useQuery(
@@ -74,9 +69,15 @@ export default function LetterSent({
 
   useEffect(() => {
     // 타이머 함수
-    const setTimeLeft = ({receiveDate, interval}) => {
-      const timeLeft = receiveDate - new Date();
-      const dayLeft = parseInt(timeLeft / (1000 * 60 * 60 * 24));
+    const setTimeLeft = ({
+      receiveDate,
+      interval,
+    }: {
+      receiveDate: Date;
+      interval?: any;
+    }) => {
+      const timeLeft = receiveDate.getTime() - new Date().getTime();
+      const dayLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
 
       if (dayLeft > 0) {
         setTimer(`D-${dayLeft}`);
@@ -89,8 +90,8 @@ export default function LetterSent({
       }
     };
 
-    if (params?.isTimeCapsule) {
-      const receiveDate = new Date(JSON.parse(params?.receiveDate));
+    if (params.isTimeCapsule && params.receiveDate !== undefined) {
+      const receiveDate = new Date(JSON.parse(params.receiveDate));
 
       setTimeLeft({receiveDate});
 
@@ -105,7 +106,7 @@ export default function LetterSent({
 
   const headerHeight = useHeaderHeight();
   const [snapReady, setSnapReady] = useState(false);
-  const [snapHeight, setSnapHeight] = useState(false);
+  const [snapHeight, setSnapHeight] = useState(0);
   const {height: pageHeight} = useWindowDimensions();
 
   const [isDetailModal, setDetailModal] = useState(false);
@@ -127,6 +128,7 @@ export default function LetterSent({
     navigation.setOptions({
       ...(params?.isTimeCapsule &&
         !params?.isCompleted && {headerTitle: '타임캡슐'}),
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           style={{paddingHorizontal: 15}}
@@ -139,7 +141,7 @@ export default function LetterSent({
     return () => letterStore.resetLetter();
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !letter) {
     return (
       <ScreenLayout>
         <ActivityIndicatorWrapper>
@@ -161,7 +163,9 @@ export default function LetterSent({
           ...(Platform.OS === 'android' && snapReady && {height: snapHeight}),
         }}
         onContentSizeChange={(w, h) => {
-          if (Platform.OS === 'android') setSnapHeight(h);
+          if (Platform.OS === 'android') {
+            setSnapHeight(h);
+          }
         }}
         style={
           Platform.OS === 'android' && {
@@ -182,24 +186,14 @@ export default function LetterSent({
                 )}`}
             </HeaderText>
             {params?.isTimeCapsule && !params?.isCompleted ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
+              <RowContainer style={{justifyContent: 'center'}}>
                 <Ionicons name="alarm-outline" size={20} />
                 <View style={{marginLeft: 5}}>
                   <DetailModalText>{timer}</DetailModalText>
                 </View>
-              </View>
+              </RowContainer>
             ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
+              <RowContainer style={{justifyContent: 'center'}}>
                 <Text
                   style={{
                     fontFamily: 'nanum-regular',
@@ -212,38 +206,20 @@ export default function LetterSent({
                   name={letter.data.isRead ? 'mail-open' : 'mail'}
                   size={20}
                 />
-              </View>
+              </RowContainer>
             )}
           </HeaderContainer>
-          <View
-            style={{
-              borderBottomWidth: 0.5,
-              borderColor: Colors.borderDark,
-              width: '100%',
-              height: 10,
-              marginBottom: 10,
-              // backgroundColor: "red",
-            }}
-          />
+          <View style={styles.contour} />
           <LetterText allowFontScaling={false}>
             {letter.data.payload}
           </LetterText>
         </LetterContainer>
-
-        {/* <EmotionImg
-          source={{ uri: assetStore.messageEmotions[letter.data.emotion] }}
-          resizeMode="contain"
-        /> */}
       </ScrollView>
 
-      <Modal
+      <ModalRh
         isVisible={isDetailModal}
-        backdropTransitionOutTiming={0}
-        onBackdropPress={() => {
-          setDetailModal(false);
-        }}
-        onBackButtonPress={() => setDetailModal(false)}
-        onModalHide={() => {
+        onClose={() => setDetailModal(false)}
+        onCloseEnd={() => {
           if (isConfirmPressed && !isDeleteModal) {
             // 받는 사람 구현해야
             letterStore.setTimeCapsule(letter.data.isTimeCapsule);
@@ -251,7 +227,7 @@ export default function LetterSent({
             letterStore.setLetterEmotion(letter.data.emotion);
             letterStore.setLetterPayload(letter.data.payload);
             letterStore.setLetterTitle(letter.data.title);
-            navigation.navigate(ROUTE_NAME.LETTER_SEND, {
+            navigation.navigate('LetterSend', {
               targetId: letter.data.receiver?.id,
               isEdit: true,
               letterId: letter.data.id,
@@ -260,36 +236,29 @@ export default function LetterSent({
           }
 
           setConfirmPressed(false);
-        }}
-        backdropOpacity={0}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        statusBarTranslucent
-        style={{position: 'absolute', top: headerHeight, right: 0}}>
-        <DetailModalContainer>
+        }}>
+        <>
           {!letter.data.isRead && (
             <>
-              <DetailModalRow
+              <ModalItem
+                payload={letter.data.isTemp ? '이어 쓰기' : '수정'}
                 onPress={() => {
                   setConfirmPressed(true);
                   setDetailModal(false);
-                }}>
-                <DetailModalText>
-                  {letter.data.isTemp ? '이어 쓰기' : '수정'}
-                </DetailModalText>
-              </DetailModalRow>
-
-              <DetailModalRow
+                }}
+              />
+              <ModalItem
+                payload="삭제"
                 onPress={() => {
                   setConfirmPressed(true);
                   setDeleteModal(true);
                   setDetailModal(false);
-                }}>
-                <DetailModalText>삭제</DetailModalText>
-              </DetailModalRow>
+                }}
+              />
             </>
           )}
-          <DetailModalRow
+          <ModalItem
+            payload="기기에 저장"
             onPress={async () => {
               try {
                 setSnapReady(true);
@@ -311,63 +280,23 @@ export default function LetterSent({
               } catch (e) {}
 
               setDetailModal(false);
-            }}>
-            <DetailModalText>기기에 저장</DetailModalText>
-          </DetailModalRow>
-        </DetailModalContainer>
-      </Modal>
+            }}
+          />
+        </>
+      </ModalRh>
 
       <Modal
         isVisible={isDeleteModal && !isConfirmPressed}
-        backdropTransitionOutTiming={0}
-        onBackButtonPress={() => {
+        onClose={() => setDeleteModal(false)}
+        onConfirm={() => {
+          deleteLetter.mutate({id: letter.data.id});
           setDeleteModal(false);
-        }}
-        onBackdropPress={() => {
-          setDeleteModal(false);
-        }}
-        onSwipeComplete={() => {
-          setDeleteModal(false);
-        }}
-        swipeDirection="down"
-        animationIn="fadeInUp"
-        animationOut="fadeOut"
-        statusBarTranslucent
-        deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-        style={{justifyContent: 'center', alignItems: 'center'}}>
-        <ConfirmModalContainer>
-          <View style={{padding: 30}}>
-            <ConfirmModalText>
-              {'작성한 내용을 삭제하시겠습니까?'}
-            </ConfirmModalText>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              borderTopWidth: 0.3,
-              borderTopColor: Colors.borderDark,
-            }}>
-            <ConfirmModalBtn
-              onPress={() => {
-                setDeleteModal(false);
-              }}>
-              <ConfirmModalText>취소</ConfirmModalText>
-            </ConfirmModalBtn>
-            <ConfirmModalBtn
-              style={{
-                borderLeftWidth: 0.3,
-                borderLeftColor: Colors.borderDark,
-              }}
-              onPress={() => {
-                // no action
-                deleteLetter.mutate({id: letter?.data.id});
-                setDeleteModal(false);
-              }}>
-              <ConfirmModalText>확인</ConfirmModalText>
-            </ConfirmModalBtn>
-          </View>
-        </ConfirmModalContainer>
+        }}>
+        <View style={{padding: 30}}>
+          <ConfirmModalText>
+            {'작성한 내용을 삭제하시겠습니까?'}
+          </ConfirmModalText>
+        </View>
       </Modal>
 
       <EmotionImg
@@ -377,3 +306,13 @@ export default function LetterSent({
     </ScreenLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  contour: {
+    borderBottomWidth: 0.5,
+    borderColor: Colors.borderDark,
+    width: '100%',
+    height: 10,
+    marginBottom: 10,
+  },
+});

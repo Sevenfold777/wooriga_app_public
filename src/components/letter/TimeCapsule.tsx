@@ -1,26 +1,17 @@
+import React from 'react';
 import styled from 'styled-components/native';
 import {Colors} from '../../Config';
 import {Ionicons} from '@expo/vector-icons';
 import {RowContainer} from '../common/Common';
-import {View, Image, AppState} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {ROUTE_NAME} from '../../Strings';
+import {Image, AppState} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import assetStore from '../../stores/AssetStore';
 import PropTypes from 'prop-types';
-import Timer from '../Timer';
 import {useEffect, useRef, useState} from 'react';
 import {getTimeCapsuleTime} from './LetterBox';
 
 export const ThemeContainer = styled.TouchableOpacity`
   background-color: white;
-  justify-content: center;
-  padding: 17px 20px;
-  border: 0.5px solid ${Colors.borderDark};
-  margin: 3px 0px;
-  border-radius: 10px;
-`;
-
-const ThemeContainerStatic = styled.View`
   justify-content: center;
   padding: 17px 20px;
   border: 0.5px solid ${Colors.borderDark};
@@ -52,7 +43,7 @@ export const ProgressBar = styled.View`
   border-radius: 7px;
 `;
 
-export const Progress = styled.View`
+export const Progress = styled.View<{percentage: number}>`
   border-radius: 7px;
   padding: 5px 0px;
   flex: ${props => props.percentage};
@@ -70,37 +61,14 @@ export const ChgHashTagText = styled(ThemeText)`
   color: ${Colors.main};
 `;
 
-export function LetterTheme({id, title, hashtags, isSelect}) {
-  const navigation = useNavigation();
-
-  return (
-    <ThemeContainer
-      onPress={() =>
-        navigation.push(ROUTE_NAME.LETTER_THEME_DETAIL, {
-          themeId: id,
-          headerTitle: title,
-          isSelect,
-        })
-      }>
-      <RowContainer>
-        <View style={{flex: 1}}>
-          <ThemeTextBold numberOfLines={1} style={{flex: 1}}>
-            {title}
-          </ThemeTextBold>
-
-          <ThemeDetail>
-            <RowContainer>
-              {hashtags.map((tag, index) => (
-                <ChgHashTagText key={index}>{`#${tag.name} `}</ChgHashTagText>
-              ))}
-            </RowContainer>
-          </ThemeDetail>
-        </View>
-        <Ionicons name="chevron-forward" size={15} color={Colors.borderDark} />
-      </RowContainer>
-    </ThemeContainer>
-  );
-}
+type Prop = {
+  id: number;
+  title: string;
+  isSent?: boolean;
+  createdAt: Date;
+  receiveDate: Date;
+  target: string;
+};
 
 export function TimeCapsule({
   id,
@@ -109,16 +77,19 @@ export function TimeCapsule({
   createdAt,
   receiveDate,
   target,
-}) {
+}: Prop) {
   const now = new Date();
+  const nowNum = now.getTime();
+  const received = receiveDate.getTime();
+  const created = createdAt.getTime();
   const navigation = useNavigation();
 
   const [progress, setProgress] = useState(
-    receiveDate <= now
+    receiveDate.getTime() <= now.getTime()
       ? 100
-      : parseInt(((now - createdAt) / (receiveDate - createdAt)) * 100),
+      : Math.floor(((nowNum - created) / (received - created)) * 100),
   );
-  const [isCompleted, setCompleted] = useState(receiveDate <= now);
+  const [isCompleted, setCompleted] = useState(received <= nowNum);
   const [timer, setTimer] = useState(getTimeCapsuleTime(receiveDate));
 
   useEffect(() => {
@@ -126,8 +97,8 @@ export function TimeCapsule({
       // 초 countdown
       if (progress < 100) {
         setProgress(
-          parseInt(
-            ((new Date() - createdAt) / (receiveDate - createdAt)) * 100,
+          Math.floor(
+            ((new Date().getTime() - created) / (received - created)) * 100,
           ),
         );
 
@@ -155,10 +126,9 @@ export function TimeCapsule({
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        // console.log("became foreground");
         setProgress(
-          parseInt(
-            ((new Date() - createdAt) / (receiveDate - createdAt)) * 100,
+          Math.floor(
+            ((new Date().getTime() - created) / (received - created)) * 100,
           ),
         );
       }
@@ -173,14 +143,14 @@ export function TimeCapsule({
     <ThemeContainer
       onPress={() => {
         if (isSent) {
-          navigation.navigate(ROUTE_NAME.LETTER_SENT, {
+          navigation.navigate('LetterSent', {
             letterId: id,
             isTimeCapsule: true,
             isCompleted,
             receiveDate: JSON.stringify(receiveDate),
           });
         } else if (isCompleted) {
-          navigation.navigate(ROUTE_NAME.LETTER_RECEIVED, {
+          navigation.navigate('LetterReceived', {
             letterId: id,
           });
         }
@@ -241,7 +211,7 @@ export function TimeCapsule({
             <ThemeText
               style={{flex: 1, color: '#3d6acb', fontFamily: 'nanum-bold'}}>
               {`${
-                3 - parseInt((now - receiveDate) / (1000 * 60 * 60 * 24))
+                3 - Math.floor((nowNum - received) / (1000 * 60 * 60 * 24))
               }일 뒤 ${isSent ? '보낸' : '받은'} 편지함으로 이동됩니다`}
             </ThemeText>
             <ThemeText>{`${isSent ? 'to' : 'from'}. ${
@@ -260,18 +230,6 @@ export function TimeCapsule({
   );
 }
 
-LetterTheme.propTypes = {
-  id: PropTypes.number.isRequired,
-  title: PropTypes.string.isRequired,
-  isSelect: PropTypes.bool.isRequired,
-  hashtags: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      createdAt: PropTypes.string.isRequired, // 필요는 없음 raw 그냥 받음
-    }),
-  ),
-};
-
 TimeCapsule.propTypes = {
   id: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
@@ -279,5 +237,5 @@ TimeCapsule.propTypes = {
   isSent: PropTypes.bool,
   createdAt: PropTypes.object.isRequired,
   receiveDate: PropTypes.object.isRequired,
-  // target: PropTypes.string.isRequired,
+  target: PropTypes.string,
 };

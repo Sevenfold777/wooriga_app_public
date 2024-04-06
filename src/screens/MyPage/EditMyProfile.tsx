@@ -5,19 +5,14 @@ import {
   ActivityIndicator,
   Keyboard,
   ScrollView,
-  StatusBar,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
 import {editUserApi, myProfile} from '../../api/UsersApi';
-import {ModalContainer} from '../../components/DailyEmotion';
 import ScreenLayout from '../../components/common/ScreenLayout';
-import useMe from '../../hooks/useMe';
-import authStore from '../../stores/AuthStore';
 import {
   Container,
   Input,
@@ -32,12 +27,15 @@ import {
   Wrapper,
   getAge,
 } from '../Auth/SignUp';
-import Modal from 'react-native-modal';
 import {Ionicons} from '@expo/vector-icons';
 import {Colors} from '../../Config';
-import {ConfirmModalBtn, ConfirmModalText} from '../../components/DetailModal';
 import Toast from '../../components/Toast';
-import {RowContainer} from '../../components/common/Common';
+import {
+  ActivityIndicatorWrapper,
+  RowContainer,
+} from '../../components/common/Common';
+import {SignedInScreenProps} from '../../navigators/types';
+import Modal from '../../components/modals/Modal';
 
 const HeaderRightBtn = styled.TouchableOpacity`
   background-color: ${Colors.main};
@@ -47,7 +45,9 @@ const HeaderRightBtn = styled.TouchableOpacity`
   opacity: ${props => (props.disabled ? 0.5 : 1)};
 `;
 
-export default function EditMyProfile({navigation}) {
+export default function EditMyProfile({
+  navigation,
+}: SignedInScreenProps<'EditMyProfile'>) {
   const {height: pageHeight} = useWindowDimensions();
 
   const positions = ['할아버지', '할머니', '아빠', '엄마', '아들', '딸'];
@@ -70,18 +70,27 @@ export default function EditMyProfile({navigation}) {
 
   // console.log(me);
 
-  const {control, handleSubmit, watch, formState, setValue} = useForm({
+  const {control, handleSubmit, watch, setValue} = useForm<{
+    userName: string;
+    birthday: string;
+  }>({
     defaultValues: {},
   });
 
-  const onValid = ({userName, birthday}) => {
+  const onValid = ({
+    userName,
+    birthday,
+  }: {
+    userName: string;
+    birthday: string;
+  }) => {
     const birthdayString = `${birthday.slice(0, 4)}-${birthday.slice(
       4,
       6,
     )}-${birthday.slice(6)}`;
 
     // invalid date type
-    if (isNaN(new Date(birthdayString))) {
+    if (isNaN(new Date(birthdayString).getTime())) {
       Toast({message: '잘못된 생일 형식입니다.'});
       return;
     } // 만 14세 이상 체크
@@ -95,7 +104,7 @@ export default function EditMyProfile({navigation}) {
       return;
     }
 
-    navigation.setOptions({headerLeft: null, gestureEnabled: false});
+    navigation.setOptions({headerLeft: () => null, gestureEnabled: false});
 
     editUser.mutate({
       position: positionPressed,
@@ -112,6 +121,7 @@ export default function EditMyProfile({navigation}) {
   });
 
   /** set header right Button */
+  // eslint-disable-next-line react/no-unstable-nested-components
   const HeaderRight = () => (
     <HeaderRightBtn
       onPress={handleSubmit(onValid)}
@@ -134,20 +144,14 @@ export default function EditMyProfile({navigation}) {
   if (editUser.isLoading) {
     return (
       <ScreenLayout>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 80,
-          }}>
+        <ActivityIndicatorWrapper>
           <ActivityIndicator
             style={{alignItems: 'center', justifyContent: 'center'}}
           />
           <LoadingText>
             {'개인 정보를 수정 중입니다.\n잠시만 기다려주세요.'}
           </LoadingText>
-        </View>
+        </ActivityIndicatorWrapper>
       </ScreenLayout>
     );
   }
@@ -155,17 +159,11 @@ export default function EditMyProfile({navigation}) {
   if (isLoading) {
     return (
       <ScreenLayout>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 80,
-          }}>
+        <ActivityIndicatorWrapper>
           <ActivityIndicator
             style={{alignItems: 'center', justifyContent: 'center'}}
           />
-        </View>
+        </ActivityIndicatorWrapper>
       </ScreenLayout>
     );
   }
@@ -256,13 +254,6 @@ export default function EditMyProfile({navigation}) {
                     required: true,
                   }}
                 />
-                {/* <PayloadText>
-              {new Date(me.data.birthday).toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })}
-            </PayloadText> */}
               </PayloadContainer>
             </Container>
 
@@ -281,53 +272,23 @@ export default function EditMyProfile({navigation}) {
 
             <Modal
               isVisible={positionModal}
-              onBackButtonPress={() => {
-                setPositionModal(false);
-              }}
-              onBackdropPress={() => {
-                setPositionModal(false);
-              }}
-              onSwipeComplete={() => {
-                setPositionModal(false);
-              }}
-              swipeDirection="down"
-              animationIn="fadeInUp"
-              animationOut="fadeOutDown"
-              backdropTransitionOutTiming={0}
-              deviceHeight={pageHeight + StatusBar.currentHeight + 10}
-              statusBarTranslucent>
-              <ModalContainer>
-                <View style={{paddingVertical: 20, paddingHorizontal: 10}}>
-                  {positions.map((position, index) => (
-                    <SelectionContainer
-                      key={index}
-                      onPress={() => {
-                        setPosionPressed(position);
-                        setPositionModal(false);
-                      }}>
-                      <PayloadText style={{flex: 1}}>{position}</PayloadText>
-                      {position === positionPressed && (
-                        <Ionicons name="checkmark" size={15} />
-                      )}
-                    </SelectionContainer>
-                  ))}
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    borderTopWidth: 0.3,
-                    borderTopColor: Colors.borderDark,
-                  }}>
-                  <ConfirmModalBtn
+              onClose={() => setPositionModal(false)}
+              confirmExist={false}>
+              <View style={{paddingVertical: 20, paddingHorizontal: 10}}>
+                {positions.map((position, index) => (
+                  <SelectionContainer
+                    key={index}
                     onPress={() => {
+                      setPosionPressed(position);
                       setPositionModal(false);
                     }}>
-                    <ConfirmModalText>닫기</ConfirmModalText>
-                    {/* <ConfirmModalText>완료</ConfirmModalText> */}
-                  </ConfirmModalBtn>
-                </View>
-              </ModalContainer>
+                    <PayloadText style={{flex: 1}}>{position}</PayloadText>
+                    {position === positionPressed && (
+                      <Ionicons name="checkmark" size={15} />
+                    )}
+                  </SelectionContainer>
+                ))}
+              </View>
             </Modal>
           </Wrapper>
         </ScrollView>

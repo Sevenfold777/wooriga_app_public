@@ -1,20 +1,36 @@
 import React, {useEffect, useState} from 'react';
-import {Letter, LetterBox} from '../../components/letter/LetterBox';
+import {Letter} from '../../components/letter/LetterBox';
 import ScreenLayout from '../../components/common/ScreenLayout';
-import {DeviceEventEmitter, FlatList, View} from 'react-native';
+import {DeviceEventEmitter, FlatList} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
 import {ActivityIndicator} from 'react-native';
 import {findLettersReceivedApi} from '../../api/LetterApi';
-import NoContent from '../../components/NoContent';
 import {NoContentContainer} from '../../components/NoContent';
 import {NoContentText} from '../../components/NoContent';
 import familyStore from '../../stores/FamilyStore';
+import {LetterBoxScreenProps} from '../../navigators/types';
+import {EMOTION_KOREAN} from '../../Config';
 
-export default function LetterBoxReceived({navigation, route}) {
+type LetterType = {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  payload: string;
+  emotion: keyof typeof EMOTION_KOREAN;
+  isTimeCapsule: boolean;
+  receiveDate: string;
+  isRead: boolean;
+  isTemp: boolean;
+  receiver: {id: number; userName: string};
+  sender: {id: number; userName: string};
+};
+
+export default function LetterBoxReceived({}: LetterBoxScreenProps<'LetterBoxReceived'>) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [letters, setLetters] = useState([]);
+  const [letters, setLetters] = useState<LetterType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -24,15 +40,11 @@ export default function LetterBoxReceived({navigation, route}) {
   };
 
   /** react-query: get letters */
-  const {
-    data,
-    isLoading: lettersIsLoading,
-    refetch: refetchLetters,
-  } = useQuery(
+  const {refetch: refetchLetters} = useQuery(
     ['LettersReceived', {prev}],
     () => findLettersReceivedApi({prev}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: LetterType[]}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -62,7 +74,7 @@ export default function LetterBoxReceived({navigation, route}) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({item: letter}) => (
+  const renderLetter = ({item: letter}: {item: LetterType}) => (
     <Letter
       id={letter.id}
       isRead={letter.isRead} // 백엔드 수정 필요
@@ -70,6 +82,8 @@ export default function LetterBoxReceived({navigation, route}) {
       receiveDate={new Date(letter.receiveDate)}
       target={familyStore.members[letter.sender?.id] || letter.sender?.userName}
       isTemp={letter.isTemp}
+      isTimeCapsule={false}
+      isSent={false}
     />
   );
 
@@ -126,6 +140,7 @@ export default function LetterBoxReceived({navigation, route}) {
         }}
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ListEmptyComponent={() => (
           <NoContentContainer style={{paddingVertical: 200}}>
             <NoContentText>

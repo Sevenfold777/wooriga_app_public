@@ -54,10 +54,30 @@ export type SignedInParams = {
   UserInquiryList: undefined;
   UserInquiry: {inquiry: {title: string; payload: string; reply: string}};
 
-  LetterSend: undefined;
-  LetterCompleted: undefined;
-  LetterSent: undefined;
-  LetterReceived: undefined;
+  LetterSend: {
+    targetId: number;
+    isTimeCapsule?: boolean;
+    isEdit?: boolean;
+    letterId?: number;
+    isTempSaved?: boolean;
+  };
+  LetterCompleted: {
+    isTimeCapsule: boolean;
+    receiveDate?: string;
+    targetString: string;
+    letterId: number;
+  };
+  LetterSent: {
+    letterId: number;
+    isTimeCapsule?: boolean;
+    receiveDate?: string;
+    isCompleted?: boolean;
+  };
+  LetterReceived: {
+    letterId: number;
+    isTimeCapsule?: boolean;
+    receiveDate?: string;
+  };
 
   LetterBoxNav: NavigatorScreenParams<LetterBoxParams>;
   TimeCapsulesNav: NavigatorScreenParams<TimeCapsuleParams>;
@@ -110,7 +130,10 @@ export type MyPageParams = {
 };
 
 export type MyPageScreenProps<T extends keyof MyPageParams> =
-  MaterialTopTabScreenProps<MyPageParams, T>;
+  CompositeScreenProps<
+    MaterialTopTabScreenProps<MyPageParams, T>,
+    SignedInScreenProps<keyof SignedInParams>
+  >;
 
 /* 4. Letter Box Nav (Material Top Tab) */
 export type LetterBoxParams = {

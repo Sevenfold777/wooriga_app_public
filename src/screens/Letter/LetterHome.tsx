@@ -2,17 +2,15 @@ import React, {useState} from 'react';
 import {
   ActivityIndicator,
   Image,
-  ScrollView,
-  TouchableOpacity,
+  StyleSheet,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
 import styled from 'styled-components/native';
 import ScreenLayout from '../../components/common/ScreenLayout';
-import {BGColors, Colors} from '../../Config';
+import {BGColors, Colors, EMOTION_KOREAN} from '../../Config';
 import {ROUTE_NAME} from '../../Strings';
-import {Ionicons} from '@expo/vector-icons';
 import {useQuery} from '@tanstack/react-query';
 import {findBannersBarApi} from '../../api/BannerApi';
 import BannerBar from '../../components/BannerBar';
@@ -48,15 +46,13 @@ const MailBox = styled.TouchableOpacity`
 `;
 
 const MenuText = styled.Text`
-  /* font-family: "nanum-bold"; */
   font-family: 'nanum-regular';
 `;
 
 export default function LetterHome({
   navigation,
-  route,
 }: MainTabScreenProps<'LetterHome'>) {
-  const now = new Date();
+  const now = new Date().getTime();
   const {width: pageWidth} = useWindowDimensions();
 
   const [title, setTitle] = useState(
@@ -67,22 +63,27 @@ export default function LetterHome({
     })}`,
   );
   const [payload, setPayload] = useState('사랑하는 우리가족에게\n보내는 편지');
-  const [emotion, setEmotion] = useState('happy');
+  const [emotion, setEmotion] = useState<keyof typeof EMOTION_KOREAN>('happy');
 
   /** react-query */
-  const {
-    data: bannersBar,
-    isLoading: bannersBarLoading,
-    refetch: refetchBars,
-  } = useQuery(['BannersBar', ROUTE_NAME.LETTER_HOME], () =>
-    findBannersBarApi({screen: ROUTE_NAME.LETTER_HOME}),
+  const {data: bannersBar, isLoading: bannersBarLoading} = useQuery(
+    ['BannersBar', ROUTE_NAME.LETTER_HOME],
+    () => findBannersBarApi({screen: ROUTE_NAME.LETTER_HOME}),
   );
 
-  const {data: letterGuide, isLoading: guideLoading} = useQuery(
+  const {isLoading: guideLoading} = useQuery(
     ['LetterHomeGuide'],
     getLetterGuideApi,
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({
+        data,
+      }: {
+        data: {
+          title: string;
+          payload: string;
+          emotion: keyof typeof EMOTION_KOREAN;
+        };
+      }) => {
         setTitle(data.title);
         setPayload(data.payload);
         setEmotion(data.emotion);
@@ -90,7 +91,7 @@ export default function LetterHome({
     },
   );
 
-  if (bannersBarLoading || guideLoading) {
+  if (bannersBarLoading || guideLoading || !bannersBar) {
     return (
       <ScreenLayout>
         <ActivityIndicator />
@@ -116,46 +117,37 @@ export default function LetterHome({
         />
 
         <MailBoxContainer style={{backgroundColor: 'white'}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}>
+          <View style={styles.menuList}>
             <MailBox
-              onPress={() => navigation.navigate(ROUTE_NAME.LETTER_BOX_NAV)}>
+              onPress={() =>
+                navigation.push('LetterBoxNav', {screen: 'LetterBoxReceived'})
+              }>
               <Image
                 source={require('../../../assets/images/mailbox.png')}
-                style={{
-                  width: 30,
-                  height: 60,
-                }}
+                style={styles.letterBox}
                 resizeMode="contain"
               />
               <MenuText allowFontScaling={false}>나의 편지함</MenuText>
             </MailBox>
 
             <MailBox
-              onPress={() => navigation.navigate(ROUTE_NAME.TIME_CAPSULES_NAV)}>
+              onPress={() =>
+                navigation.push('TimeCapsulesNav', {
+                  screen: 'TimeCapsuleReceivd',
+                })
+              }>
               <Image
                 source={require('../../../assets/images/timeCapsule.png')}
-                style={{
-                  width: 40,
-                  height: 60,
-                }}
+                style={styles.timeCapsuleBox}
                 resizeMode="contain"
               />
               <MenuText allowFontScaling={false}>타임캡슐</MenuText>
             </MailBox>
 
-            <MailBox
-              onPress={() => navigation.navigate(ROUTE_NAME.LETTER_SEND)}>
+            <MailBox onPress={() => navigation.push('LetterSend')}>
               <Image
                 source={require('../../../assets/images/letterSend.png')}
-                style={{
-                  width: 35,
-                  height: 60,
-                }}
+                style={styles.letterSend}
                 resizeMode="contain"
               />
               <MenuText allowFontScaling={false}>편지 보내기</MenuText>
@@ -164,8 +156,7 @@ export default function LetterHome({
         </MailBoxContainer>
       </View>
 
-      <TouchableWithoutFeedback
-        onPress={() => navigation.navigate(ROUTE_NAME.LETTER_SEND)}>
+      <TouchableWithoutFeedback onPress={() => navigation.push('LetterSend')}>
         <LetterContainer
           style={{
             backgroundColor: BGColors[emotion],
@@ -176,15 +167,7 @@ export default function LetterHome({
               {title}
             </HeaderText>
           </HeaderContainer>
-          <View
-            style={{
-              borderBottomWidth: 0.5,
-              borderColor: Colors.borderDark,
-              width: '100%',
-              height: 10,
-              marginBottom: 10,
-            }}
-          />
+          <View style={styles.letterTextWrapper} />
           <LetterText allowFontScaling={false}>{payload}</LetterText>
 
           <EmotionImg
@@ -196,3 +179,27 @@ export default function LetterHome({
     </ScreenLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  menuList: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  letterBox: {
+    width: 30,
+    height: 60,
+  },
+  timeCapsuleBox: {width: 40, height: 60},
+  letterSend: {
+    width: 35,
+    height: 60,
+  },
+  letterTextWrapper: {
+    borderBottomWidth: 0.5,
+    borderColor: Colors.borderDark,
+    width: '100%',
+    height: 10,
+    marginBottom: 10,
+  },
+});

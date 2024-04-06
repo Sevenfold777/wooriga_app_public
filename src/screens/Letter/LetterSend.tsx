@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Keyboard,
   StatusBar,
@@ -8,7 +8,6 @@ import {
   useWindowDimensions,
   View,
   ActivityIndicator,
-  Image,
   ScrollView,
   TextInput,
 } from 'react-native';
@@ -37,7 +36,7 @@ import {
 
 import {observer} from 'mobx-react-lite';
 import DismissKeyboard from '../../components/common/DismissKeyboard';
-import {CommonActions, useFocusEffect} from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import {
   ConfirmModalBtn,
@@ -57,7 +56,6 @@ import {
   DetailModalText,
   EmotionImg,
   HeaderContainer,
-  HeaderText,
 } from '../../components/letter/Letter';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useMutation, useQuery} from '@tanstack/react-query';

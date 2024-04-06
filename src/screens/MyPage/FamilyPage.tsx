@@ -1,42 +1,29 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
 import React, {useState} from 'react';
-import styled from 'styled-components/native';
 import DailyEmotion from '../../components/DailyEmotion';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
 } from '../../components/common/ScreenLayout';
-import {Ionicons} from '@expo/vector-icons';
-import {
-  ActivityIndicator,
-  Image,
-  Platform,
-  ScrollView,
-  View,
-} from 'react-native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import {inviteFamilyApi} from '../../api/FamilyApi';
-import {INVITATION_URL, SERVER_URL} from '../../api/ApiConfig';
-import Clipboard from '@react-native-clipboard/clipboard';
+import {INVITATION_URL} from '../../api/ApiConfig';
 import Menu from '../../components/myPage/Menu';
-import Modal from 'react-native-modal';
 import {useWindowDimensions} from 'react-native';
-import RNKakaoAdfit, {KakaoAdfit} from '../../components/RNKakaoAdfit';
 import {MenuContainer} from './MyPage';
-import {StatusBar} from 'react-native';
 import {ROUTE_NAME} from '../../Strings';
-import {Colors} from '../../Config';
 import BannerBar from '../../components/BannerBar';
 import {findBannersBarApi} from '../../api/BannerApi';
 import InviteModal from '../../components/InviteModal';
+import {MyPageScreenProps} from '../../navigators/types';
 
-export default function FamilyPage({navigation}) {
+export default function FamilyPage({
+  navigation,
+}: MyPageScreenProps<'FamilyPage'>) {
   const now = new Date().getTime();
 
-  const {
-    data: bannersBar,
-    isLoading: bannersBarLoading,
-    refetch: refetchBars,
-  } = useQuery(['BannersBar', ROUTE_NAME.MYPAGE_FAMILY], () =>
-    findBannersBarApi({screen: ROUTE_NAME.MYPAGE_FAMILY}),
+  const {data: bannersBar, isLoading: bannersBarLoading} = useQuery(
+    ['BannersBar', ROUTE_NAME.MYPAGE_FAMILY],
+    () => findBannersBarApi({screen: ROUTE_NAME.MYPAGE_FAMILY}),
   );
 
   const [inviteModal, setInviteModal] = useState(false);
@@ -48,7 +35,7 @@ export default function FamilyPage({navigation}) {
     },
   });
 
-  const {width: pageWidth, height: pageHeight} = useWindowDimensions();
+  const {width: pageWidth} = useWindowDimensions();
 
   if (bannersBarLoading) {
     return (
@@ -67,7 +54,6 @@ export default function FamilyPage({navigation}) {
         <MenuContainer>
           {/* <Menu payload={"우리 가족 온도"} /> */}
           <Menu
-            // style={{ flex: 1 }}
             action={() => {
               inviteFamily.mutate();
               setInviteModal(!inviteModal);
@@ -75,13 +61,12 @@ export default function FamilyPage({navigation}) {
             payload={'가족 초대하기'}
           />
 
-          {/* <Menu action={() => {}} payload="기프티콘 보관함" /> */}
           <Menu
-            action={() => navigation.navigate(ROUTE_NAME.EDIT_FAMILY_PROFILE)}
+            action={() => navigation.navigate('EditFamilyProfile')}
             payload="가족 이름 변경"
           />
           <Menu
-            action={() => navigation.navigate(ROUTE_NAME.DAILY_EMOTIONS_PAST)}
+            action={() => navigation.navigate('DailyEmotionsPast')}
             payload="그날의 우리가"
           />
         </MenuContainer>
@@ -102,7 +87,6 @@ export default function FamilyPage({navigation}) {
             }
           />
         )}
-        {/* <KakaoAdfit /> */}
       </ScrollView>
 
       <InviteModal

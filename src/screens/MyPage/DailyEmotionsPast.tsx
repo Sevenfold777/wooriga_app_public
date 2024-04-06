@@ -1,60 +1,47 @@
 import {useQuery} from '@tanstack/react-query';
 import React, {useMemo, useState} from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
-import styled from 'styled-components/native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import {findFamilyEmotionsApi} from '../../api/DailyEmotionApi';
 import DailyEmotion, {
   Container,
   Emotion,
-  EmotionModalText,
-  EmotionModalTextContainer,
-  EmotionModalWrapper,
   EmotionOwner,
   EmotionWrapper,
   Header,
-  HeaderWrapper,
-  ModalContainer,
 } from '../../components/DailyEmotion';
 import ScreenLayout, {
   ActivityIndicatorWrapper,
 } from '../../components/common/ScreenLayout';
 import authStore from '../../stores/AuthStore';
 import familyStore from '../../stores/FamilyStore';
-import Modal from 'react-native-modal';
-import {Ionicons} from '@expo/vector-icons';
 import {observer} from 'mobx-react-lite';
-import {Colors, EMOTION_KOREAN} from '../../Config';
+import {EMOTION_KOREAN} from '../../Config';
 import {FlatList} from 'react-native';
-import useFamily from '../../hooks/useFamily';
 import {findMyFamilyApi} from '../../api/FamilyApi';
 import {useWindowDimensions} from 'react-native';
 import assetStore from '../../stores/AssetStore';
-import {ROUTE_NAME} from '../../Strings';
-import NoContent from '../../components/NoContent';
+import {SignedInScreenProps} from '../../navigators/types';
 
-function DailyEmotionsPast({navigation}) {
-  const family = Object.keys(familyStore.members).filter(
-    memberId => parseInt(memberId) !== authStore.userId,
-  );
+type EmotionType = {
+  date: string;
+  emotions: {userId: number; type: keyof typeof EMOTION_KOREAN | 'null'}[];
+};
 
-  const {width: pageWidth, height: pageHeight} = useWindowDimensions();
+function DailyEmotionsPast({}: SignedInScreenProps<'DailyEmotionsPast'>) {
+  const family = Object.keys(familyStore.members)
+    .map(memberId => parseInt(memberId, 10))
+    .filter(memberId => memberId !== authStore.userId);
 
-  const {data: myFamily, isLoading: familyIsLoading} = useQuery(
-    ['MyFamily', true],
-    () => findMyFamilyApi(true),
+  const {width: pageWidth} = useWindowDimensions();
+
+  const {isLoading: familyIsLoading} = useQuery(['MyFamily', true], () =>
+    findMyFamilyApi(true),
   );
 
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [emotions, setEmotions] = useState([]);
+  const [emotions, setEmotions] = useState<EmotionType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -64,15 +51,11 @@ function DailyEmotionsPast({navigation}) {
   };
 
   /** { date: Date, emotions: {userId: number, type: string}[] } */
-  const {
-    data: pastEmotions,
-    isLoading: emotionsIsLoading,
-    refetch: refetchEmotions,
-  } = useQuery(
+  const {} = useQuery(
     ['familyEmotionsAll', {prev}],
     () => findFamilyEmotionsApi({prev}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: EmotionType[]}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -87,23 +70,23 @@ function DailyEmotionsPast({navigation}) {
     },
   );
 
-  const [isFamilyModal, setFamilyModal] = useState(false);
-  const [familyPressed, setFamilyPressed] = useState({});
-
-  const renderEmotion = ({id, type, isMe, date}) => {
+  const renderEmotion = ({
+    id,
+    type,
+    isMe,
+  }: {
+    id: number;
+    type: keyof typeof EMOTION_KOREAN | 'null';
+    isMe: boolean;
+  }) => {
     return (
       <EmotionWrapper key={id}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setFamilyPressed({id, type, date});
-            setFamilyModal(true);
-          }}>
-          <Emotion
-            type={assetStore.emotionsRound[type]}
-            source={{uri: assetStore.emotionsRound[type]}}
-            pageWidth={pageWidth}
-          />
-        </TouchableWithoutFeedback>
+        <Emotion
+          source={{uri: assetStore.emotionsRound[type]}}
+          width={(pageWidth - 100) / 4}
+          height={(pageWidth - 100) / 4}
+          borderRadius={(pageWidth - 100) / 8}
+        />
         <EmotionOwner style={{maxWidth: (pageWidth - 100) / 4}}>
           {isMe ? authStore.userName : familyStore.members[id]}
         </EmotionOwner>
@@ -111,79 +94,7 @@ function DailyEmotionsPast({navigation}) {
     );
   };
 
-  const renderFamilyModal = () => (
-    <Modal
-      isVisible={isFamilyModal}
-      onBackdropPress={() => {
-        setFamilyModal(false);
-      }}
-      onSwipeComplete={() => {
-        setFamilyModal(false);
-      }}
-      onBackButtonPress={() => {
-        setFamilyModal(false);
-      }}
-      swipeDirection="down"
-      animationIn="fadeInUp"
-      animationOut="fadeOutDown"
-      backdropTransitionOutTiming={0}
-      statusBarTranslucent
-      deviceHeight={pageHeight + StatusBar.currentHeight + 10}>
-      <ModalContainer>
-        <TouchableOpacity
-          style={{position: 'absolute', top: 0, right: 0, padding: 10}}
-          onPress={() => setFamilyModal(false)}>
-          <Ionicons name="close" size={22} color={Colors.borderDark} />
-        </TouchableOpacity>
-
-        <EmotionModalWrapper>
-          <EmotionWrapper>
-            <Emotion
-              type={assetStore.emotionsRound[familyPressed?.type]}
-              source={{uri: assetStore.emotionsRound[familyPressed?.type]}}
-              pageWidth={pageWidth}
-              style={{width: 100, height: 100, borderRadius: 50}}
-            />
-            {familyPressed?.id === authStore.userId ? (
-              <EmotionOwner>{authStore.userName}</EmotionOwner>
-            ) : (
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  setFamilyModal(false);
-                  navigation.navigate(ROUTE_NAME.CHANGE_NICKNAME, {
-                    id: familyPressed?.id,
-                    name: familyPressed?.userName,
-                    nickname: familyStore.members[familyPressed?.id],
-                  });
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <EmotionOwner>
-                    {familyStore.members[familyPressed?.id]}
-                  </EmotionOwner>
-                </View>
-              </TouchableWithoutFeedback>
-            )}
-          </EmotionWrapper>
-
-          <EmotionModalTextContainer>
-            <EmotionModalText>
-              {familyPressed?.type === 'null'
-                ? `${familyPressed?.date}의 감정을 선택하지 않았습니다!`
-                : `${familyPressed?.date}의 감정은 ${
-                    EMOTION_KOREAN[familyPressed?.type]
-                  }입니다!`}
-            </EmotionModalText>
-          </EmotionModalTextContainer>
-        </EmotionModalWrapper>
-      </ModalContainer>
-    </Modal>
-  );
-
-  const renderEmotions = ({item: emotion}) => {
+  const renderEmotions = ({item: emotion}: {item: EmotionType}) => {
     const dateObj = new Date(emotion.date);
     const now = new Date();
 
@@ -203,15 +114,12 @@ function DailyEmotionsPast({navigation}) {
           id: authStore.userId,
           type: meFound.type,
           isMe: true,
-          date,
         })
-      : renderEmotion({id: authStore.userId, type: 'null', isMe: true, date});
+      : renderEmotion({id: authStore.userId, type: 'null', isMe: true});
 
     return (
       <Container key={emotion.date}>
-        <HeaderWrapper>
-          <Header>{`${date}`}</Header>
-        </HeaderWrapper>
+        <Header>{`${date}`}</Header>
         <ScrollView
           style={{paddingVertical: 5}}
           horizontal={true}
@@ -222,12 +130,12 @@ function DailyEmotionsPast({navigation}) {
 
           {family.map(memberId => {
             const userFound = emotion.emotions.find(
-              member => memberId === member.userId.toString(),
+              member => memberId === member.userId,
             );
 
             const result = userFound
-              ? renderEmotion({id: memberId, type: userFound.type, date})
-              : renderEmotion({id: memberId, type: 'null', date});
+              ? renderEmotion({id: memberId, type: userFound.type, isMe: false})
+              : renderEmotion({id: memberId, type: 'null', isMe: false});
 
             return result;
           })}
@@ -235,8 +143,6 @@ function DailyEmotionsPast({navigation}) {
       </Container>
     );
   };
-
-  const memoized = useMemo(() => renderEmotions, [emotions]);
 
   if ((emotions.length === 0 || familyIsLoading) && !isLast) {
     return (
@@ -250,7 +156,7 @@ function DailyEmotionsPast({navigation}) {
     <ScreenLayout>
       <FlatList
         data={emotions}
-        renderItem={memoized}
+        renderItem={renderEmotions}
         showsVerticalScrollIndicator={false}
         onEndReached={() => {
           if (!isLast && !isLoading) {
@@ -266,8 +172,6 @@ function DailyEmotionsPast({navigation}) {
           <ActivityIndicator />
         </ActivityIndicatorWrapper>
       )}
-
-      {renderFamilyModal()}
     </ScreenLayout>
   );
 }

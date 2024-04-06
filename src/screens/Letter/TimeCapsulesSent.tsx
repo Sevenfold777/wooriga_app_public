@@ -1,24 +1,35 @@
 import React, {useEffect, useState} from 'react';
-import {DeviceEventEmitter, FlatList, View} from 'react-native';
+import {DeviceEventEmitter, FlatList} from 'react-native';
 import styled from 'styled-components/native';
 import ScreenLayout from '../../components/common/ScreenLayout';
-import {TimeCapsule} from '../../components/letter/LetterTheme';
-import {ROUTE_NAME} from '../../Strings';
+import {TimeCapsule} from '../../components/letter/TimeCapsule';
 import {findLettersSentApi} from '../../api/LetterApi';
 import {NoContentContainer, NoContentText} from '../../components/NoContent';
 import {ActivityIndicator} from 'react-native';
 import {useQuery} from '@tanstack/react-query';
 import familyStore from '../../stores/FamilyStore';
+import {TimeCapsuleScreenProps} from '../../navigators/types';
 
-const Wrapper = styled.View`
-  padding: 0px 12px 0px 12px;
-`;
+type LetterType = {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  payload: string;
+  emotion: keyof typeof EMOTION_KOREAN;
+  isTimeCapsule: boolean;
+  receiveDate: string;
+  isRead: boolean;
+  isTemp: boolean;
+  receiver: {id: number; userName: string};
+  sender: {id: number; userName: string};
+};
 
-export default function TimeCapsulesSent({navigation, route}) {
+export default function TimeCapsulesSent({}: TimeCapsuleScreenProps<'TimeCapsuleSent'>) {
   // for pagination (lazy loading)
   const [queryEnable, setQueryEnable] = useState(true);
   const [prev, setPrev] = useState(0);
-  const [letters, setLetters] = useState([]);
+  const [letters, setLetters] = useState<LetterType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLast, setIsLast] = useState(false);
 
@@ -28,15 +39,11 @@ export default function TimeCapsulesSent({navigation, route}) {
   };
 
   /** react-query: get letters */
-  const {
-    data,
-    isLoading: lettersIsLoading,
-    refetch: refetchLetters,
-  } = useQuery(
+  const {refetch: refetchLetters} = useQuery(
     ['LettersSent', {prev}],
     () => findLettersSentApi({prev, isTimeCapsule: true}),
     {
-      onSuccess: ({data}) => {
+      onSuccess: ({data}: {data: LetterType[]}) => {
         if (data.length === 0) {
           setIsLast(true);
         } else {
@@ -66,11 +73,10 @@ export default function TimeCapsulesSent({navigation, route}) {
     setRefreshing(false);
   };
 
-  const renderLetter = ({item: letter}) => (
+  const renderLetter = ({item: letter}: {item: LetterType}) => (
     <TimeCapsule
       id={letter.id}
       title={letter.title}
-      progress={((Math.random() * 100) % 7).toFixed(1)}
       createdAt={new Date(letter.createdAt)}
       receiveDate={new Date(letter.receiveDate)}
       target={
@@ -117,6 +123,7 @@ export default function TimeCapsulesSent({navigation, route}) {
         }}
         onEndReachedThreshold={0.01}
         scrollEnabled={!isLoading}
+        // eslint-disable-next-line react/no-unstable-nested-components
         ListEmptyComponent={() => (
           <NoContentContainer style={{paddingVertical: 200}}>
             <NoContentText>

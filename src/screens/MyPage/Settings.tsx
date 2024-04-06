@@ -1,19 +1,20 @@
 import React from 'react';
-import {Alert, Text} from 'react-native';
+import {Platform, Text} from 'react-native';
 import Menu from '../../components/myPage/Menu';
 import ScreenLayout from '../../components/common/ScreenLayout';
 import authStore from '../../stores/AuthStore';
-import {ROUTE_NAME} from '../../Strings';
 import {MenuContainer} from './MyPage';
 import DeviceInfo from 'react-native-device-info';
 import {MenuBar} from '../../components/myPage/Menu';
-import {MenuTitle} from '../../components/myPage/Menu';
 import {Colors} from '../../Config';
 import {Ionicons} from '@expo/vector-icons';
 import {RowContainer} from '../../components/common/Common';
 import {openURL} from '../../helper';
+import {SignedInScreenProps} from '../../navigators/types';
 
-export default function Settings({navigation, route: {params}}) {
+export default function Settings({
+  navigation,
+}: SignedInScreenProps<'Settings'>) {
   return (
     <ScreenLayout>
       <MenuContainer>
@@ -38,17 +39,14 @@ export default function Settings({navigation, route: {params}}) {
           />
         </MenuBar>
 
-        <Menu
-          payload="정보"
-          action={() => navigation.navigate(ROUTE_NAME.INFOS)}
-        />
+        <Menu payload="정보" action={() => navigation.navigate('Infos')} />
         <Menu
           payload="1 : 1  문의"
-          action={() => navigation.navigate(ROUTE_NAME.USER_INQUIRY_LIST)}
+          action={() => navigation.navigate('UserInquiryList')}
         />
         <Menu
           payload="알림 설정"
-          action={() => navigation.navigate(ROUTE_NAME.PUSH_NOTIF_SETTINGS)}
+          action={() => navigation.navigate('PushNotifSettings')}
         />
         <Menu
           payload="로그아웃"
@@ -56,10 +54,7 @@ export default function Settings({navigation, route: {params}}) {
             authStore.logoutAction();
           }}
         />
-        <Menu
-          payload="회원탈퇴"
-          action={() => navigation.navigate(ROUTE_NAME.QUIT)}
-        />
+        <Menu payload="회원탈퇴" action={() => navigation.navigate('Quit')} />
       </MenuContainer>
     </ScreenLayout>
   );

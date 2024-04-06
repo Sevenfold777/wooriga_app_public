@@ -3,8 +3,7 @@ import styled from 'styled-components/native';
 import ScreenLayout from '../../components/common/ScreenLayout';
 import {Ionicons} from '@expo/vector-icons';
 import {Colors} from '../../Config';
-import {Text, TouchableWithoutFeedback, View} from 'react-native';
-import {ROUTE_NAME} from '../../Strings';
+import {TouchableWithoutFeedback} from 'react-native';
 import {getTimeCapsuleTime} from '../../components/letter/LetterBox';
 import {SignedInScreenProps} from '../../navigators/types';
 
@@ -27,39 +26,12 @@ const ToLetterText = styled.Text`
 `;
 
 const TimerContainer = styled.View`
-  /* width: 80%; */
   margin: 10px;
-  /* padding: 15px 25px; */
   border-radius: 10px;
   background-color: ${Colors.sub};
-
   padding: 15px 35px;
   justify-content: center;
   align-items: center;
-`;
-
-const TimeDial = styled.View`
-  background-color: ${Colors.white};
-  margin: 2px;
-  text-align: center;
-  padding: 10px 0px;
-  width: 27px;
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
-`;
-
-const DialText = styled.Text`
-  font-family: 'nanum-bold';
-  font-size: 18px;
-  text-align: center;
-`;
-
-const DialContainer = styled.View`
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin: 5px 0px;
 `;
 
 const SubText = styled.Text`
@@ -76,8 +48,14 @@ export default function LetterCompleted({
 
   useEffect(() => {
     // 타이머 함수
-    const setTimeLeft = ({receiveDate, interval}) => {
-      const timeLeft = receiveDate - new Date();
+    const setTimeLeft = ({
+      receiveDate,
+      interval,
+    }: {
+      receiveDate: Date;
+      interval?: any;
+    }) => {
+      const timeLeft = receiveDate.getTime() - new Date().getTime();
 
       if (timeLeft > 0) {
         const timeString = getTimeCapsuleTime(receiveDate);
@@ -87,8 +65,8 @@ export default function LetterCompleted({
       }
     };
 
-    if (params?.isTimeCapsule) {
-      const receiveDate = new Date(JSON.parse(params?.receiveDate));
+    if (params.isTimeCapsule && params.receiveDate) {
+      const receiveDate = new Date(JSON.parse(params.receiveDate));
 
       setTimeLeft({receiveDate});
 
@@ -101,7 +79,7 @@ export default function LetterCompleted({
     }
   }, [timer]);
 
-  if (params?.isTimeCapsule) {
+  if (params.isTimeCapsule) {
     return (
       <ScreenLayout>
         <Container>
@@ -115,10 +93,10 @@ export default function LetterCompleted({
 
           <TouchableWithoutFeedback
             onPress={() =>
-              navigation.replace(ROUTE_NAME.LETTER_SENT, {
-                letterId: params?.letterId,
+              navigation.replace('LetterSent', {
+                letterId: params.letterId,
                 isTimeCapsule: true,
-                receiveDate: params?.receiveDate,
+                receiveDate: params.receiveDate,
               })
             }>
             <ToLetterText>작성된 편지 보기</ToLetterText>
@@ -132,12 +110,12 @@ export default function LetterCompleted({
     <ScreenLayout>
       <Container>
         <Ionicons name="paper-plane-outline" size={60} style={{padding: 10}} />
-        <PromptText>{`${params?.targetString} 님에게`}</PromptText>
+        <PromptText>{`${params.targetString} 님에게`}</PromptText>
         <PromptText>마음이 담긴 편지를 발송하였습니다</PromptText>
         <TouchableWithoutFeedback
           onPress={() =>
-            navigation.replace(ROUTE_NAME.LETTER_SENT, {
-              letterId: params?.letterId,
+            navigation.replace('LetterSent', {
+              letterId: params.letterId,
             })
           }>
           <ToLetterText>작성된 편지 보기</ToLetterText>
